@@ -19,17 +19,52 @@ export function SettingsProvider({
     initialSettings,
 }: {
     children: React.ReactNode;
-    initialSettings: Settings;
+    initialSettings?: Settings; // Made optional
 }) {
-    const [settings, setSettings] = useState(initialSettings);
+    const defaultSettings: Settings = {
+        currency: 'USD',
+        language: 'en',
+        hideBalances: false,
+    };
 
-    // Sync state with props if they change (e.g. after router.refresh())
+    const [settings, setSettings] = useState<Settings>(initialSettings || defaultSettings);
+
+    // Initialize from localStorage on mount (Client-side only)
     useEffect(() => {
-        setSettings(initialSettings);
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('dompetku-settings');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    setSettings((prev) => ({ ...prev, ...parsed }));
+                } catch (e) {
+                    // Ignore error
+                }
+            } else if (initialSettings) {
+                // If no local storage but we have server initialSettings, save them locally
+                localStorage.setItem('dompetku-settings', JSON.stringify(initialSettings));
+            }
+        }
+    }, []);
+
+    // Sync state with props if they change (server refresh)
+    useEffect(() => {
+        if (initialSettings) {
+            setSettings((prev) => {
+                const updated = { ...prev, ...initialSettings };
+                // Also update local storage to keep in sync
+                localStorage.setItem('dompetku-settings', JSON.stringify(updated));
+                return updated;
+            });
+        }
     }, [initialSettings]);
 
     const updateSettings = (newSettings: Partial<Settings>) => {
-        setSettings((prev) => ({ ...prev, ...newSettings }));
+        setSettings((prev) => {
+            const updated = { ...prev, ...newSettings };
+            localStorage.setItem('dompetku-settings', JSON.stringify(updated));
+            return updated;
+        });
     };
 
     return (

@@ -1,5 +1,6 @@
+'use client';
+
 import { GeneralSettingsForm } from '@/components/settings/general-settings-form';
-import { getSettings } from '@/actions/settings';
 import {
     Tabs,
     TabsContent,
@@ -7,12 +8,12 @@ import {
     TabsTrigger,
 } from '@/components/ui/tabs';
 import { CategoryList } from '@/components/categories/category-list';
-import { createClient } from '@/lib/supabase/server';
+import { useSettings } from '@/components/providers/settings-provider';
+import { useAuth } from '@/components/providers/auth-provider';
 
-export default async function SettingsPage() {
-    const settings = await getSettings();
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+export default function SettingsPage() {
+    const settings = useSettings();
+    const { user } = useAuth();
 
     // Default profile for guest mode or fallback
     let profile = {
@@ -29,11 +30,17 @@ export default async function SettingsPage() {
         };
     }
 
+    // Prepare settings object expected by form
+    const initialSettings = {
+        currency: settings.currency,
+        language: settings.language,
+        hideBalances: settings.hideBalances
+    };
+
     return (
         <div className="flex-1 h-full overflow-y-auto">
             <div className="max-w-[1400px] w-full mx-auto p-6 md:p-8">
                 <main className="flex-1 min-w-0 mb-20">
-                    {/* Header */}
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                         <div>
@@ -49,7 +56,7 @@ export default async function SettingsPage() {
                         </TabsList>
 
                         <TabsContent value="general" className="outline-none">
-                            <GeneralSettingsForm initialSettings={settings} initialProfile={profile} />
+                            <GeneralSettingsForm initialSettings={initialSettings} initialProfile={profile} />
                         </TabsContent>
 
                         <TabsContent value="categories" className="outline-none">
