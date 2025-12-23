@@ -20,6 +20,13 @@ export function useSync() {
         if (!user || isGuest) return;
         if (isSyncingRef.current) return;
 
+        // Don't attempt sync if offline
+        if (!navigator.onLine) {
+            console.log('Sync skipped: offline');
+            setHasCompletedInitialSync(true);
+            return;
+        }
+
         isSyncingRef.current = true;
         setIsSyncing(true);
         try {

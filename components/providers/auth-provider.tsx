@@ -29,13 +29,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const guestCookie = Cookies.get(GUEST_COOKIE);
         if (guestCookie === 'true') {
             setIsGuest(true);
-            LocalDataStore.initialize(); // Initialize local data for guest
+            LocalDataStore.initialize();
         }
 
         // Check Supabase Auth
         const checkUser = async () => {
             try {
-                // 1. Try to get session from local storage (fast)
+                // 1. Try to get session from local storage (fast, works offline)
                 const { data: { session } } = await supabase.auth.getSession();
 
                 if (session?.user) {
@@ -46,12 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 // 2. Unblock UI immediately so we can load cached data
                 setIsLoading(false);
 
-                // 3. Verify with server in background (if online)
+                // 3. Only verify with server if online
                 if (navigator.onLine) {
-                    const { data: { user: verifiedUser } } = await supabase.auth.getUser();
-                    if (verifiedUser && verifiedUser.id !== session?.user?.id) {
-                        setUser(verifiedUser);
-                        LocalDataStore.setUserId(verifiedUser.id);
+                    try {
+                        const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+                        if (verifiedUser && verifiedUser.id !== session?.user?.id) {
+                            setUser(verifiedUser);
+                            LocalDataStore.setUserId(verifiedUser.id);
+                        }
+                    } catch (verifyError) {
+                        // Silently fail - we already have session data
+                        console.warn('User verification failed (offline?):', verifyError);
                     }
                 }
             } catch (error) {
@@ -61,23 +66,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         checkUser();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            const newUser = session?.user ?? null;
-            setUser(newUser);
-            LocalDataStore.setUserId(newUser?.id || null); // Set ID
-            // If logged in via Supabase, ensure Guest mode is off?
-            if (newUser) {
-                // If we were in guest mode, maybe we should merge data? 
-                // For now, let's just prioritize Auth User.
-                // But SyncEngine needs to know.
-                // If user logs in, we might want to keep isGuest false.
-                setIsGuest(false);
-                Cookies.remove(GUEST_COOKIE);
-            }
-        });
+        // Auth state change listener with error handling
+        let subscription: { unsubscribe: () => void } | null = null;
+
+        try {
+            const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+                try {
+                    const newUser = session?.user ?? null;
+                    setUser(newUser);
+                    LocalDataStore.setUserId(newUser?.id || null);
+
+                    if (newUser) {
+                        setIsGuest(false);
+                        Cookies.remove(GUEST_COOKIE);
+                    }
+                } catch (stateError) {
+                    console.error('Error in auth state change handler:', stateError);
+                }
+            });
+            subscription = data.subscription;
+        } catch (subscriptionError) {
+            console.error('Failed to setup auth subscription:', subscriptionError);
+        }
 
         return () => {
-            subscription.unsubscribe();
+            if (subscription) {
+                subscription.unsubscribe();
+            }
         };
     }, []);
 

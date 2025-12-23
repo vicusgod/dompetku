@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import QueryProvider from "@/components/providers/query-provider";
-import { AuthProvider } from "@/components/providers/auth-provider";
-import { SyncProvider } from "@/components/providers/sync-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/components/providers/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +31,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // Prevent zooming on mobile inputs
+  userScalable: false,
   themeColor: "#2563eb",
 };
 
@@ -53,15 +50,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background-light font-display`}
       >
-        <QueryProvider>
-          <AuthProvider>
-            <SyncProvider>
-              {children}
-            </SyncProvider>
-            <Toaster />
-          </AuthProvider>
-        </QueryProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
 }
+
