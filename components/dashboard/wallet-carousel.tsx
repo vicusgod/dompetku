@@ -16,7 +16,7 @@ interface WalletCarouselProps {
 
 export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) {
     const { data: wallets = [], isLoading } = useWallets();
-    const { isSyncing } = useSyncState();
+    const { isSyncing, hasCompletedInitialSync } = useSyncState();
     const [activeIndex, setActiveIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,8 +32,12 @@ export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) 
         }
     };
 
-    // Show skeleton if query is loading OR sync is in progress with no local data
-    if (isLoading || (isSyncing && wallets.length === 0)) {
+    // Show skeleton if:
+    // - Query is loading, OR
+    // - Initial sync hasn't completed yet AND no local data exists
+    const showSkeleton = isLoading || (!hasCompletedInitialSync && wallets.length === 0);
+
+    if (showSkeleton) {
         return (
             <section className="order-1 lg:order-none lg:col-span-2 flex flex-col gap-4">
                 <div className="flex items-center justify-between">

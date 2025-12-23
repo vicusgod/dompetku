@@ -7,12 +7,14 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
 export function useSync() {
-    const { user, isGuest } = useAuth();
+    const { user, isGuest, isLoading: isAuthLoading } = useAuth();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSynced, setLastSynced] = useState<Date | null>(null);
+    const [hasCompletedInitialSync, setHasCompletedInitialSync] = useState(false);
     const queryClient = useQueryClient();
 
     const isSyncingRef = useRef(false);
+    const hasStartedRef = useRef(false);
 
     const runSync = useCallback(async () => {
         if (!user || isGuest) return;
@@ -28,23 +30,23 @@ export function useSync() {
             await syncEngine.pull(user.id);
 
             setLastSynced(new Date());
+            setHasCompletedInitialSync(true);
             console.log('Sync completed successfully');
         } catch (error) {
             console.error('Sync failed:', error);
-            // Don't toast for background sync failures usually, unless critical
+            // Even on failure, mark as completed so we don't show skeleton forever
+            setHasCompletedInitialSync(true);
         } finally {
             setIsSyncing(false);
             isSyncingRef.current = false;
         }
-    }, [user, isGuest]); // Removed isSyncing dependency
+    }, [user, isGuest]);
 
     useEffect(() => {
         // Subscribe to SyncEngine updates to invalidate queries
         const unsubscribe = syncEngine.subscribe(() => {
             console.log('SyncEngine notified update. Invalidating queries...');
             queryClient.invalidateQueries();
-            // We can be more specific: ['transactions'], ['wallets'], etc.
-            // But invalidating all is safer for now.
         });
 
         return () => {
@@ -53,7 +55,12 @@ export function useSync() {
     }, [queryClient]);
 
     useEffect(() => {
-        if (!user || isGuest) return;
+        // Reset state when user changes (login/logout)
+        if (!user || isGuest) {
+            setHasCompletedInitialSync(isGuest); // Guests have local data immediately
+            hasStartedRef.current = false;
+            return;
+        }
 
         const handleOnline = () => {
             console.log('App is back online. Syncing...');
@@ -68,9 +75,14 @@ export function useSync() {
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
 
-        // Initial sync on mount
-        if (navigator.onLine) {
+        // Initial sync on mount - only once per user session
+        if (navigator.onLine && !hasStartedRef.current) {
+            hasStartedRef.current = true;
+            setIsSyncing(true); // Set syncing BEFORE the async call starts
             runSync();
+        } else if (!navigator.onLine) {
+            // If offline, mark sync as complete so we show local data (even if empty)
+            setHasCompletedInitialSync(true);
         }
 
         return () => {
@@ -82,6 +94,8 @@ export function useSync() {
     return {
         isSyncing,
         lastSynced,
+        hasCompletedInitialSync,
         runSync
     };
 }
+

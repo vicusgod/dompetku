@@ -14,15 +14,15 @@ import { useSyncState } from '@/components/providers/sync-provider';
 
 export default function DashboardPage() {
     const { user } = useAuth();
-    const { isSyncing } = useSyncState();
+    const { hasCompletedInitialSync } = useSyncState();
 
     const { data: wallets = [], isLoading: isLoadingWallets } = useWallets();
     const { data: transactions = [], isLoading: isLoadingTransactions } = useTransactions();
     const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
 
-    // Consider syncing state: if sync is in progress and data is empty, treat as loading
+    // Consider sync state: if initial sync hasn't completed and data is empty, treat as loading
     const isDataEmpty = wallets.length === 0 && transactions.length === 0;
-    const isEffectivelyLoading = isLoadingWallets || isLoadingTransactions || isLoadingCategories || (isSyncing && isDataEmpty);
+    const isEffectivelyLoading = isLoadingWallets || isLoadingTransactions || isLoadingCategories || (!hasCompletedInitialSync && isDataEmpty);
 
     // Calculate stats from fetched data
     const stats = useMemo(() => {

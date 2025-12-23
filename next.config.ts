@@ -89,6 +89,15 @@ const withPWA = require("next-pwa")({
       },
     },
     {
+      // Cache ALL Next.js internals (JS bundles, CSS, RSC data) - Critical for offline
+      urlPattern: /^\/_next\/.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "next-static",
+        expiration: { maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60 },
+      },
+    },
+    {
       // Critical: CacheFirst for navigation ensures offline access to visited pages
       urlPattern: ({ request }: { request: any }) => request.mode === "navigate",
       handler: "CacheFirst",
