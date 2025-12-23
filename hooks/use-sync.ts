@@ -50,10 +50,11 @@ export function useSync() {
     }, [user, isGuest]);
 
     useEffect(() => {
-        // Subscribe to SyncEngine updates to invalidate queries
+        // Subscribe to SyncEngine updates to refetch queries
         const unsubscribe = syncEngine.subscribe(() => {
-            console.log('SyncEngine notified update. Invalidating queries...');
-            queryClient.invalidateQueries();
+            console.log('SyncEngine notified update. Refetching queries...');
+            // Use refetchQueries instead of invalidateQueries to force immediate update
+            queryClient.refetchQueries();
         });
 
         return () => {
