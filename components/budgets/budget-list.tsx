@@ -1,7 +1,8 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getBudgets, deleteBudget } from '@/actions/budgets';
+// import { getBudgets, deleteBudget } from '@/actions/budgets'; // Removed
+import { useBudgets, useDeleteBudget } from '@/hooks/use-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -11,19 +12,11 @@ import { formatCurrency } from '@/lib/utils'; // Assuming this exists or I'll im
 
 export function BudgetList() {
     const queryClient = useQueryClient();
-    const { data: budgets = [], isLoading } = useQuery({
-        queryKey: ['budgets'],
-        queryFn: async () => await getBudgets(),
-    });
+    const { data: budgets = [], isLoading } = useBudgets();
+    const deleteBudgetMutation = useDeleteBudget();
 
-    const handleDelete = async (id: string) => {
-        const result = await deleteBudget(id);
-        if (result.error) {
-            toast.error(result.error);
-        } else {
-            toast.success('Budget removed');
-            queryClient.invalidateQueries({ queryKey: ['budgets'] });
-        }
+    const handleDelete = (id: string) => {
+        deleteBudgetMutation.mutate(id);
     };
 
     if (isLoading) {
