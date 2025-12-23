@@ -8,17 +8,8 @@ const withPWA = require("next-pwa")({
   fallbacks: {
     document: "/offline.html",
   },
-  // Force cache these key pages so they are available offline even if not visited yet
-  additionalManifestEntries: [
-    { url: "/", revision: "v2" },
-    { url: "/index", revision: "v2" },
-    { url: "/login", revision: "v2" },
-    { url: "/dashboard", revision: "v2" },
-    { url: "/wallets", revision: "v2" },
-    { url: "/transactions", revision: "v2" },
-    { url: "/budget", revision: "v2" },
-    { url: "/settings", revision: "v2" }
-  ],
+  // Removed additionalManifestEntries - doesn't work with App Router
+  // Relying on runtime caching for offline access
   runtimeCaching: [
     {
       urlPattern: ({ url }: { url: any }) => url.pathname === "/" || url.pathname === "/dashboard" || url.pathname === "/login",
