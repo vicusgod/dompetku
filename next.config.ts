@@ -10,15 +10,27 @@ const withPWA = require("next-pwa")({
   },
   // Force cache these key pages so they are available offline even if not visited yet
   additionalManifestEntries: [
-    { url: "/", revision: "v1" },
-    { url: "/login", revision: "v1" },
-    { url: "/dashboard", revision: "v1" },
-    { url: "/wallets", revision: "v1" },
-    { url: "/transactions", revision: "v1" },
-    { url: "/budget", revision: "v1" },
-    { url: "/settings", revision: "v1" }
+    { url: "/", revision: "v2" },
+    { url: "/index", revision: "v2" },
+    { url: "/login", revision: "v2" },
+    { url: "/dashboard", revision: "v2" },
+    { url: "/wallets", revision: "v2" },
+    { url: "/transactions", revision: "v2" },
+    { url: "/budget", revision: "v2" },
+    { url: "/settings", revision: "v2" }
   ],
   runtimeCaching: [
+    {
+      urlPattern: "/",
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "start-url",
+        expiration: {
+          maxEntries: 4,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        },
+      },
+    },
     {
       urlPattern: /^https?.*/,
       handler: "StaleWhileRevalidate",
