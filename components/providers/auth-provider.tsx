@@ -34,10 +34,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Check Supabase Auth
         const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-            LocalDataStore.setUserId(user?.id || null); // Set ID
-            setIsLoading(false);
+            try {
+                // 1. Try to get session from local storage (fast)
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (session?.user) {
+                    setUser(session.user);
+                    LocalDataStore.setUserId(session.user.id);
+                }
+
+                // 2. Unblock UI immediately so we can load cached data
+                setIsLoading(false);
+
+                // 3. Verify with server in background (if online)
+                if (navigator.onLine) {
+                    const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+                    if (verifiedUser && verifiedUser.id !== session?.user?.id) {
+                        setUser(verifiedUser);
+                        LocalDataStore.setUserId(verifiedUser.id);
+                    }
+                }
+            } catch (error) {
+                console.error('Auth check failed', error);
+                setIsLoading(false);
+            }
         };
         checkUser();
 
