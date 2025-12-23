@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense, useState, useEffect } from 'react';
 
 import { ExportTransactionDialog } from '@/components/transactions/export-transaction-dialog';
+import { Briefcase, ShoppingCart, MoreVertical, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function TransactionsContent() {
     const searchParams = useSearchParams();
@@ -106,7 +107,7 @@ function TransactionsContent() {
                                         <td className="p-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="size-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 shrink-0 shadow-sm">
-                                                    <span className="material-symbols-outlined text-[20px]">{isIncome ? 'work' : 'shopping_cart'}</span>
+                                                    {isIncome ? <Briefcase size={20} /> : <ShoppingCart size={20} />}
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors">{transaction.categoryName || 'Transaction'}</span>
@@ -136,7 +137,7 @@ function TransactionsContent() {
                                         </td>
                                         <td className="p-5 text-center">
                                             <button className="size-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors">
-                                                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                                <MoreVertical size={20} />
                                             </button>
                                         </td>
                                     </tr>
@@ -153,7 +154,7 @@ function TransactionsContent() {
                                 <div key={transaction.id} className="p-4 border-b border-slate-100 flex items-center justify-between gap-3 active:bg-slate-50 transition-colors">
                                     <div className="flex items-center gap-3 overflow-hidden">
                                         <div className="size-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 shrink-0 shadow-sm">
-                                            <span className="material-symbols-outlined text-[20px]">{isIncome ? 'work' : 'shopping_cart'}</span>
+                                            {isIncome ? <Briefcase size={20} /> : <ShoppingCart size={20} />}
                                         </div>
                                         <div className="flex flex-col min-w-0">
                                             <span className="text-sm font-bold text-slate-800 truncate">{transaction.categoryName || 'Transaction'}</span>
@@ -185,7 +186,7 @@ function TransactionsContent() {
                         <div className="flex gap-3">
                             <ExportTransactionDialog>
                                 <Button variant="outline" className="flex items-center justify-center h-9 px-3 rounded-lg bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-primary hover:border-primary/20 transition-all shadow-sm gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">file_download</span>
+                                    <Download size={18} />
                                     <span>Export CSV</span>
                                 </Button>
                             </ExportTransactionDialog>
@@ -196,14 +197,14 @@ function TransactionsContent() {
                                 disabled={currentPage === 1}
                                 className="size-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-white hover:text-primary hover:border-primary/50 shadow-sm disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
                             >
-                                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                                <ChevronLeft size={20} />
                             </button>
                             <button
                                 onClick={handleNext}
                                 disabled={currentPage >= totalPages}
                                 className="size-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-white hover:text-primary hover:border-primary/50 shadow-sm disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
                             >
-                                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                                <ChevronRight size={20} />
                             </button>
                         </div>
                     </div>
