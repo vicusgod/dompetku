@@ -12,6 +12,7 @@ const withPWA = require("next-pwa")({
   // Relying on runtime caching for offline access
   runtimeCaching: [
     {
+      // App Shell routes - StaleWhileRevalidate for fast load + background update
       urlPattern: ({ url }: { url: any }) => url.pathname === "/" || url.pathname === "/dashboard" || url.pathname === "/login",
       handler: "StaleWhileRevalidate",
       options: {
@@ -82,18 +83,21 @@ const withPWA = require("next-pwa")({
     {
       // Cache ALL Next.js internals (JS bundles, CSS, RSC data) - Critical for offline
       urlPattern: /^\/_next\/.*/i,
-      handler: "CacheFirst",
+      handler: "StaleWhileRevalidate",
       options: {
         cacheName: "next-static",
         expiration: { maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60 },
       },
     },
     {
-      // Critical: CacheFirst for navigation ensures offline access to visited pages
+      // Navigation requests: NetworkFirst with short timeout for offline resilience
+      // - Online: fetches fresh page from network
+      // - Offline: serves cached page, falls back to offline.html
       urlPattern: ({ request }: { request: any }) => request.mode === "navigate",
-      handler: "CacheFirst",
+      handler: "NetworkFirst",
       options: {
         cacheName: "pages",
+        networkTimeoutSeconds: 3, // Quick timeout for fast offline fallback
         expiration: { maxEntries: 32, maxAgeSeconds: 7 * 24 * 60 * 60 },
       },
     },

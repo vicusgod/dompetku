@@ -65,10 +65,15 @@ export function useSync() {
     useEffect(() => {
         // Reset state when user changes (login/logout)
         if (!user || isGuest) {
-            setHasCompletedInitialSync(isGuest); // Guests have local data immediately
+            setHasCompletedInitialSync(true); // Guests/no-auth have local data immediately
             hasStartedRef.current = false;
             return;
         }
+
+        // For authenticated users, also show local data immediately
+        // Set hasCompletedInitialSync to true RIGHT AWAY so UI loads local data
+        // Sync will happen in background and update data when ready
+        setHasCompletedInitialSync(true);
 
         const handleOnline = () => {
             console.log('App is back online. Syncing...');
@@ -83,14 +88,11 @@ export function useSync() {
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
 
-        // Initial sync on mount - only once per user session
+        // Initial sync on mount - only once per user session (runs in background)
         if (navigator.onLine && !hasStartedRef.current) {
             hasStartedRef.current = true;
-            setIsSyncing(true); // Set syncing BEFORE the async call starts
-            runSync();
-        } else if (!navigator.onLine) {
-            // If offline, mark sync as complete so we show local data (even if empty)
-            setHasCompletedInitialSync(true);
+            setIsSyncing(true);
+            runSync(); // This runs in background, UI already has local data
         }
 
         return () => {
