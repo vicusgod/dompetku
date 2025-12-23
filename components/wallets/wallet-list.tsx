@@ -1,6 +1,7 @@
 'use client';
 
-import { getWallets, deleteWallet } from '@/actions/wallets';
+// import { getWallets, deleteWallet } from '@/actions/wallets'; // Removed
+import { useWallets, useDeleteWallet } from '@/hooks/use-data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,19 +18,11 @@ import { MoreHorizontal } from 'lucide-react';
 
 export function WalletList() {
     const queryClient = useQueryClient();
-    const { data: wallets = [], isLoading } = useQuery({
-        queryKey: ['wallets'],
-        queryFn: async () => await getWallets(),
-    });
+    const { data: wallets = [], isLoading } = useWallets();
+    const deleteWalletMutation = useDeleteWallet();
 
-    const handleDelete = async (id: string) => {
-        const result = await deleteWallet(id);
-        if (result.error) {
-            toast.error(result.error);
-        } else {
-            toast.success('Wallet deleted');
-            queryClient.invalidateQueries({ queryKey: ['wallets'] });
-        }
+    const handleDelete = (id: string) => {
+        deleteWalletMutation.mutate(id);
     };
 
     if (isLoading) {
