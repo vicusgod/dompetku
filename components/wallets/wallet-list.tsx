@@ -1,10 +1,11 @@
 'use client';
 
-import { useWallets, useDeleteWallet } from '@/hooks/use-data';
+import { getWallets, deleteWallet } from '@/actions/wallets';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useQueryClient } from '@tanstack/react-query';
-import { Trash2, Wallet, CreditCard, Banknote, MoreHorizontal } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Loader2, Trash2, Wallet, CreditCard, Banknote } from 'lucide-react';
+import { toast } from 'sonner';
 import { AddWalletDialog } from './add-wallet-dialog';
 import {
     DropdownMenu,
@@ -12,47 +13,27 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Skeleton } from '@/components/ui/skeleton';
+import { MoreHorizontal } from 'lucide-react';
 
 export function WalletList() {
     const queryClient = useQueryClient();
-    const { data: wallets = [], isLoading } = useWallets();
-    const deleteWalletMutation = useDeleteWallet();
+    const { data: wallets = [], isLoading } = useQuery({
+        queryKey: ['wallets'],
+        queryFn: async () => await getWallets(),
+    });
 
-    const handleDelete = (id: string) => {
-        deleteWalletMutation.mutate(id);
+    const handleDelete = async (id: string) => {
+        const result = await deleteWallet(id);
+        if (result.error) {
+            toast.error(result.error);
+        } else {
+            toast.success('Wallet deleted');
+            queryClient.invalidateQueries({ queryKey: ['wallets'] });
+        }
     };
 
     if (isLoading) {
-        return (
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <Skeleton className="h-8 w-32 mb-2" />
-                        <Skeleton className="h-4 w-60" />
-                    </div>
-                    <Skeleton className="h-10 w-32 rounded-lg" />
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {[1, 2, 3].map((i) => (
-                        <Card key={i} className="shadow-sm">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <Skeleton className="h-4 w-24" />
-                                <Skeleton className="h-8 w-8 rounded-md" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Skeleton className="h-9 w-9 rounded-full" />
-                                    <Skeleton className="h-6 w-32" />
-                                </div>
-                                <Skeleton className="h-8 w-24" />
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-        );
+        return <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>;
     }
 
     const getIcon = (type: string) => {

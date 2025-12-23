@@ -33,9 +33,9 @@ import { CalendarIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { transactionSchema, TransactionFormValues } from '@/lib/validators';
 import { useQuery } from '@tanstack/react-query';
-// import { getCategories } from '@/actions/categories'; // Removed
+import { getCategories } from '@/actions/categories';
 import { toast } from 'sonner';
-import { useUpdateTransaction, useCategories } from '@/hooks/use-data';
+import { useUpdateTransaction } from '@/hooks/use-data';
 
 interface EditTransactionDialogProps {
     open: boolean;
@@ -46,7 +46,10 @@ interface EditTransactionDialogProps {
 export function EditTransactionDialog({ open, onOpenChange, transaction }: EditTransactionDialogProps) {
     const [isPending, setIsPending] = useState(false);
 
-    const { data: categories = [] } = useCategories();
+    const { data: categories = [] } = useQuery({
+        queryKey: ['categories'],
+        queryFn: async () => await getCategories(),
+    });
 
     const form = useForm<TransactionFormValues>({
         resolver: zodResolver(transactionSchema as any),

@@ -10,8 +10,10 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useReorderWallets } from '@/hooks/use-data';
-import { Wallet, Landmark, CreditCard, ChevronUp, ChevronDown } from 'lucide-react';
+import { reorderWallets } from '@/actions/wallets';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
 interface WalletReorderDialogProps {
     wallets: any[];
@@ -21,9 +23,7 @@ interface WalletReorderDialogProps {
 export function WalletReorderDialog({ wallets: initialWallets, children }: WalletReorderDialogProps) {
     const [wallets, setWallets] = useState(initialWallets);
     const [isOpen, setIsOpen] = useState(false);
-
-    const reorderMutation = useReorderWallets();
-    const isPending = reorderMutation.isPending;
+    const [isPending, startTransition] = useTransition();
 
     const moveUp = (index: number) => {
         if (index === 0) return;
@@ -40,14 +40,19 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
     };
 
     const handleSave = () => {
-        const updates = wallets.map((w, index) => ({
-            id: w.id,
-            order: index,
-        }));
+        startTransition(async () => {
+            const updates = wallets.map((w, index) => ({
+                id: w.id,
+                order: index,
+            }));
 
-        reorderMutation.mutate(updates, {
-            onSuccess: () => {
+            const result = await reorderWallets(updates);
+
+            if (result.success) {
+                toast.success('Wallets reordered successfully');
                 setIsOpen(false);
+            } else {
+                toast.error('Failed to reorder wallets');
             }
         });
     };
@@ -75,7 +80,9 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded-full bg-slate-200/50 text-slate-500">
-                                    {wallet.type === 'CASH' ? <Wallet size={20} /> : wallet.type === 'BANK' ? <Landmark size={20} /> : <CreditCard size={20} />}
+                                    <span className="material-symbols-outlined text-[20px]">
+                                        {wallet.type === 'CASH' ? 'wallet' : wallet.type === 'BANK' ? 'account_balance' : 'account_balance_wallet'}
+                                    </span>
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-semibold text-sm text-slate-700">{wallet.name}</span>
@@ -88,14 +95,14 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
                                     disabled={index === 0}
                                     className="p-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
                                 >
-                                    <ChevronUp size={20} />
+                                    <span className="material-symbols-outlined text-[20px]">keyboard_arrow_up</span>
                                 </button>
                                 <button
                                     onClick={() => moveDown(index)}
                                     disabled={index === wallets.length - 1}
                                     className="p-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
                                 >
-                                    <ChevronDown size={20} />
+                                    <span className="material-symbols-outlined text-[20px]">keyboard_arrow_down</span>
                                 </button>
                             </div>
                         </div>
@@ -111,4 +118,3 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
         </Dialog>
     );
 }
-

@@ -32,17 +32,14 @@ export async function getTransactions(filters?: {
             type: transactions.type,
             date: transactions.date,
             note: transactions.note,
-            categoryId: transactions.categoryId,
             categoryName: categories.name,
             categoryIcon: categories.icon,
             walletId: transactions.walletId,
-            createdAt: transactions.createdAt,
         })
         .from(transactions)
         .leftJoin(categories, eq(transactions.categoryId, categories.id))
         .where(whereClause)
-        .orderBy(desc(transactions.date))
-        .limit(200); // Limit for performance - sync only recent transactions
+        .orderBy(desc(transactions.date));
 
     // In-memory filtering
     let filtered = result;

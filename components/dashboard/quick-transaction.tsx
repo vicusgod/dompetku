@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { cn, getCurrencySymbol } from '@/lib/utils';
 import { useWallets, useCategories, useCreateTransaction } from '@/hooks/use-data';
 import { useSettings } from '@/components/providers/settings-provider';
-import { RotateCcw, ArrowDown, ArrowUp, Plus } from 'lucide-react';
 
 export function QuickTransaction() {
     const router = useRouter();
@@ -99,7 +98,7 @@ export function QuickTransaction() {
                     className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"
                     title="Reset form"
                 >
-                    <RotateCcw size={20} />
+                    <span className="material-symbols-outlined">restart_alt</span>
                 </button>
             </div>
 
@@ -112,7 +111,7 @@ export function QuickTransaction() {
                         type === 'EXPENSE' ? "bg-white text-rose-500 shadow-sm" : "text-slate-400 hover:text-slate-600"
                     )}
                 >
-                    <ArrowDown size={18} />
+                    <span className="material-symbols-outlined text-[18px]">south</span>
                     Expense
                 </button>
                 <button
@@ -122,7 +121,7 @@ export function QuickTransaction() {
                         type === 'INCOME' ? "bg-white text-emerald-500 shadow-sm" : "text-slate-400 hover:text-slate-600"
                     )}
                 >
-                    <ArrowUp size={18} />
+                    <span className="material-symbols-outlined text-[18px]">north</span>
                     Income
                 </button>
             </div>
@@ -158,7 +157,7 @@ export function QuickTransaction() {
                             {wallets.length === 0 ? (
                                 <SelectItem value="__add_wallet__" className="text-primary font-semibold">
                                     <span className="flex items-center gap-2">
-                                        <Plus size={18} />
+                                        <span className="material-symbols-outlined text-[18px]">add</span>
                                         Add Wallet
                                     </span>
                                 </SelectItem>

@@ -30,14 +30,10 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // 2. Get session from cookies (no network call - works offline)
-    // Using getSession() instead of getUser() because:
-    // - getSession() reads from cookies/localStorage (offline-compatible)
-    // - getUser() makes a network request to verify token (fails offline)
+    // 2. Refresh session if needed
     const {
-        data: { session },
-    } = await supabase.auth.getSession()
-    const user = session?.user ?? null
+        data: { user },
+    } = await supabase.auth.getUser()
 
     // 3. Check for Guest Mode cookie
     const isGuestMode = request.cookies.get('duit-guest-mode')?.value === 'true';
@@ -60,16 +56,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico, icon files
-         * - Static files (svg, png, jpg, etc.)
-         * - Service worker files
-         * - PWA related files
-         */
-        '/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-.*|fallback-.*|offline.html|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }
-

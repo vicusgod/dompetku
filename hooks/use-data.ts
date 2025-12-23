@@ -8,13 +8,11 @@ import { syncEngine } from '@/lib/sync-engine';
 import { toast } from 'sonner';
 
 // --- Transactions Hook ---
-// --- Transactions Hook ---
 export function useTransactions(filters?: { from?: string; to?: string; walletId?: string; search?: string }) {
     const { user, isGuest } = useAuth();
     // We rely on useSync to invalidate queries, so this query will re-run when LocalDataStore updates.
     return useQuery({
         queryKey: ['transactions', filters, user?.id, isGuest],
-        networkMode: 'always',
         queryFn: async () => {
             let transactions = LocalDataStore.getTransactions();
 
@@ -42,7 +40,6 @@ export function useCreateTransaction() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (data: Omit<LocalTransaction, 'id' | 'createdAt'>) => {
             // 1. Create Locally
             const newTx = LocalDataStore.createTransaction(data);
@@ -74,7 +71,6 @@ export function useDeleteTransaction() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (id: string) => {
             LocalDataStore.deleteTransaction(id);
 
@@ -98,7 +94,6 @@ export function useUpdateTransaction() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async ({ id, data }: { id: string; data: any }) => {
             // 1. Update Locally
             LocalDataStore.updateTransaction(id, {
@@ -130,7 +125,6 @@ export function useWallets() {
     const { user, isGuest } = useAuth();
     return useQuery({
         queryKey: ['wallets', user?.id, isGuest],
-        networkMode: 'always',
         queryFn: async () => {
             return LocalDataStore.getWallets();
         },
@@ -142,7 +136,6 @@ export function useCreateWallet() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (data: any) => {
             const newWallet = LocalDataStore.createWallet(data);
 
@@ -164,7 +157,6 @@ export function useDeleteWallet() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (id: string) => {
             LocalDataStore.deleteWallet(id);
             if (user && !isGuest) {
@@ -184,7 +176,6 @@ export function useUpdateWallet() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async ({ id, data }: { id: string; data: any }) => {
             LocalDataStore.updateWallet(id, data);
 
@@ -206,7 +197,6 @@ export function useCategories() {
     const { user, isGuest } = useAuth();
     return useQuery({
         queryKey: ['categories', user?.id, isGuest],
-        networkMode: 'always',
         queryFn: async () => {
             return LocalDataStore.getCategories();
         },
@@ -218,7 +208,6 @@ export function useCreateCategory() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (data: any) => {
             const newCategory = LocalDataStore.createCategory(data);
             if (user && !isGuest) {
@@ -239,7 +228,6 @@ export function useDeleteCategory() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (id: string) => {
             LocalDataStore.deleteCategory(id);
             if (user && !isGuest) {
@@ -259,7 +247,6 @@ export function useUpdateCategory() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async ({ id, data }: { id: string; data: any }) => {
             LocalDataStore.updateCategory(id, data);
 
@@ -279,7 +266,6 @@ export function useBudgets() {
     const { user, isGuest } = useAuth();
     return useQuery({
         queryKey: ['budgets', user?.id, isGuest],
-        networkMode: 'always',
         queryFn: async () => {
             return LocalDataStore.getBudgets();
         },
@@ -291,7 +277,6 @@ export function useCreateBudget() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (data: any) => {
             // Check for existing budget for this category locally
             const existing = LocalDataStore.getBudgets().find(b => b.categoryId === data.categoryId);
@@ -322,7 +307,6 @@ export function useDeleteBudget() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        networkMode: 'always',
         mutationFn: async (id: string) => {
             LocalDataStore.deleteBudget(id);
             if (user && !isGuest) {
@@ -333,36 +317,6 @@ export function useDeleteBudget() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['budgets'] });
             toast.success('Budget deleted');
-        }
-    });
-}
-
-export function useReorderWallets() {
-    const { user, isGuest } = useAuth();
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        networkMode: 'always',
-        mutationFn: async (updates: { id: string; order: number }[]) => {
-            // 1. Update Locally
-            updates.forEach(u => {
-                LocalDataStore.updateWallet(u.id, { order: u.order });
-            });
-
-            // 2. Queue if Auth
-            if (user && !isGuest) {
-                // For simplified sync, we rely on the fact that next pull will get correct order,
-                // OR we push individual updates. Individual is safer for SyncEngine.
-                updates.forEach(u => {
-                    MutationQueue.enqueue('UPDATE_WALLET', { id: u.id, order: u.order }, user.id);
-                });
-                // Trigger sync
-                syncEngine.push(user.id).catch(console.error);
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['wallets'] });
-            toast.success('Wallets reordered');
         }
     });
 }

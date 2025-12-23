@@ -7,7 +7,6 @@ import { AddWalletDialog } from '@/components/wallets/add-wallet-dialog';
 import { formatCurrency } from '@/lib/utils';
 import { WalletCard } from '@/components/wallets/wallet-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Landmark, TrendingUp, PiggyBank, CheckCircle, CreditCard, Info } from 'lucide-react';
 
 export default function WalletsPage() {
     const { data: wallets = [], isLoading: isLoadingWallets } = useWallets();
@@ -87,7 +86,7 @@ export default function WalletsPage() {
                     <div className="rounded-3xl p-6 border-2 border-dashed border-gray-300 hover:border-primary hover:bg-blue-50/30 transition-all duration-300 flex flex-col items-center justify-center gap-4 group min-h-[250px] cursor-pointer">
                         <div className="w-14 h-14 rounded-full bg-white shadow-sm group-hover:shadow-md group-hover:scale-110 flex items-center justify-center text-[#6E6E85] group-hover:text-primary transition-all duration-300">
                             <AddWalletDialog trigger={
-                                <Plus size={24} />
+                                <span className="material-symbols-outlined text-2xl">add</span>
                             } />
                         </div>
                         <div className="text-center">
@@ -106,14 +105,14 @@ export default function WalletsPage() {
                     <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                         <div className="flex items-center gap-2 text-[#6E6E85]">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <Landmark size={20} className="text-primary" />
+                                <span className="material-symbols-outlined text-primary text-xl">account_balance</span>
                             </div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[11px] opacity-70">Total Balance</p>
                         </div>
                         <div>
                             <h3 className={`text-3xl font-extrabold text-[#1A1A2E] tracking-tight mb-1 transition-all duration-300 ${balanceStyle}`}>{formatCurrency(totalBalance, currency)}</h3>
                             <div className="flex items-center gap-1.5">
-                                <TrendingUp size={14} className="text-emerald-500" />
+                                <span className="material-symbols-outlined text-emerald-500 text-sm">trending_up</span>
                                 <span className="text-xs font-bold text-emerald-600">+12% vs last month</span>
                             </div>
                         </div>
@@ -126,14 +125,14 @@ export default function WalletsPage() {
                     <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                         <div className="flex items-center gap-2 text-[#6E6E85]">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <PiggyBank size={20} className="text-amber-500" />
+                                <span className="material-symbols-outlined text-amber-500 text-xl">savings</span>
                             </div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[11px] opacity-70">Total Savings</p>
                         </div>
                         <div>
                             <h3 className={`text-3xl font-extrabold text-[#1A1A2E] tracking-tight mb-1 transition-all duration-300 ${balanceStyle}`}>{formatCurrency(totalSavings, currency)}</h3>
                             <div className="flex items-center gap-1.5">
-                                <CheckCircle size={14} className="text-emerald-500" />
+                                <span className="material-symbols-outlined text-emerald-500 text-sm">check_circle</span>
                                 <span className="text-xs font-bold text-emerald-600">On track for goals</span>
                             </div>
                         </div>
@@ -146,14 +145,14 @@ export default function WalletsPage() {
                     <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                         <div className="flex items-center gap-2 text-[#6E6E85]">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <CreditCard size={20} className="text-purple-500" />
+                                <span className="material-symbols-outlined text-purple-500 text-xl">credit_card</span>
                             </div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[11px] opacity-70">Monthly Spending</p>
                         </div>
                         <div>
                             <h3 className={`text-3xl font-extrabold text-[#1A1A2E] tracking-tight mb-1 transition-all duration-300 ${balanceStyle}`}>{formatCurrency(monthlySpending, currency)}</h3>
                             <div className="flex items-center gap-1.5">
-                                <Info size={14} className="text-[#6E6E85]" />
+                                <span className="material-symbols-outlined text-[#6E6E85] text-sm">info</span>
                                 <span className="text-xs font-bold text-[#6E6E85]">Based on all wallets</span>
                             </div>
                         </div>

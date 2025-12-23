@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
         name: 'Dompetku - Personal Finance Tracker',
         short_name: 'Dompetku',
         description: 'Track your expenses, income, and budget with ease.',
-        start_url: '/dashboard',
+        start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#2563eb', // Primary Blue

@@ -18,20 +18,13 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from '@/components/providers/auth-provider';
-import { LayoutDashboard, Wallet, FileText, PiggyBank, Settings, LogOut, LucideIcon } from 'lucide-react';
 
-interface SidebarItem {
-    href: string;
-    label: string;
-    icon: LucideIcon;
-}
-
-const sidebarItems: SidebarItem[] = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/wallets', label: 'Wallets', icon: Wallet },
-    { href: '/transactions', label: 'Transactions', icon: FileText },
-    { href: '/budget', label: 'Budget', icon: PiggyBank },
-    { href: '/settings', label: 'Settings', icon: Settings },
+const sidebarItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { href: '/wallets', label: 'Wallets', icon: 'account_balance_wallet' },
+    { href: '/transactions', label: 'Transactions', icon: 'receipt_long' },
+    { href: '/budget', label: 'Budget', icon: 'donut_small' },
+    { href: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
@@ -73,7 +66,6 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                         <nav className="flex flex-col gap-2">
                             {sidebarItems.map((item) => {
                                 const isActive = pathname === item.href;
-                                const IconComponent = item.icon;
                                 return (
                                     <Link
                                         key={item.href}
@@ -83,12 +75,13 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                                             : 'hover:bg-black/5 text-slate-500 hover:text-slate-900'
                                             }`}
                                     >
-                                        <IconComponent
-                                            size={22}
-                                            className={isActive ? 'text-white' : 'text-current'}
-                                            strokeWidth={isActive ? 2.5 : 2}
-                                            fill={isActive ? 'currentColor' : 'none'}
-                                        />
+                                        <span
+                                            className={`material-symbols-outlined ${isActive ? 'text-white' : 'text-current'
+                                                }`}
+                                            style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
+                                        >
+                                            {item.icon}
+                                        </span>
                                         <span className={`text-sm ${isActive ? 'text-white font-semibold' : 'font-medium'}`}>
                                             {item.label}
                                         </span>
@@ -101,7 +94,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                         <AlertDialogTrigger asChild>
                             <div className="group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 transition-all cursor-pointer text-slate-500 hover:text-slate-900 mt-auto">
                                 <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-red-50 transition-colors">
-                                    <LogOut size={20} className="text-slate-500 group-hover:text-red-500 transition-colors" />
+                                    <span className="material-symbols-outlined text-slate-500 group-hover:text-red-500 transition-colors text-[20px]">logout</span>
                                 </div>
                                 <span className="text-sm font-medium group-hover:text-red-600 transition-colors">Sign Out</span>
                             </div>
@@ -143,4 +136,3 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
         </>
     );
 }
-

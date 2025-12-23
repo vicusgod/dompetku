@@ -6,7 +6,6 @@ import { BudgetCard } from '@/components/budgets/budget-card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus } from 'lucide-react';
 
 export default function BudgetPage() {
     const { data: budgets = [], isLoading } = useBudgets();
@@ -43,7 +42,7 @@ export default function BudgetPage() {
                     {budgets.length > 0 && (
                         <AddBudgetDialog trigger={
                             <Button className="w-full md:w-auto h-12 bg-[#1d3cdd] hover:bg-[#152cad] text-white text-base font-bold rounded-2xl shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                <Plus size={24} />
+                                <span className="material-symbols-outlined text-[24px]">add</span>
                                 <span>Create Budget</span>
                             </Button>
                         } />
@@ -65,7 +64,7 @@ export default function BudgetPage() {
                     <AddBudgetDialog trigger={
                         <button className="w-full rounded-[32px] p-8 border-2 border-dashed border-slate-300 hover:border-blue-600 hover:bg-blue-50/30 transition-all duration-300 flex flex-col items-center justify-center gap-4 group min-h-[300px] cursor-pointer">
                             <div className="size-16 rounded-full bg-white shadow-sm group-hover:shadow-md group-hover:scale-110 flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-all duration-300">
-                                <Plus size={28} />
+                                <span className="material-symbols-outlined text-3xl">add</span>
                             </div>
                             <div className="text-center space-y-1">
                                 <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-lg">Create New Budget</h3>

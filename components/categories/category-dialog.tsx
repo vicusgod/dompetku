@@ -20,11 +20,6 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useCreateCategory, useUpdateCategory } from '@/hooks/use-data';
-import {
-    ShoppingCart, Utensils, Bus, Banknote, GraduationCap,
-    Heart, Plane, PiggyBank, Briefcase, Home, Dog, Dumbbell,
-    Film, Coffee, Gift, Wrench, LucideIcon
-} from 'lucide-react';
 
 interface CategoryDialogProps {
     trigger?: React.ReactNode;
@@ -33,24 +28,11 @@ interface CategoryDialogProps {
     onOpenChange?: (open: boolean) => void;
 }
 
-// Map icon name to Lucide component
-const ICONS: { name: string; icon: LucideIcon }[] = [
-    { name: 'shopping_cart', icon: ShoppingCart },
-    { name: 'restaurant', icon: Utensils },
-    { name: 'commute', icon: Bus },
-    { name: 'payments', icon: Banknote },
-    { name: 'school', icon: GraduationCap },
-    { name: 'medical_services', icon: Heart },
-    { name: 'flight', icon: Plane },
-    { name: 'savings', icon: PiggyBank },
-    { name: 'work', icon: Briefcase },
-    { name: 'home', icon: Home },
-    { name: 'pets', icon: Dog },
-    { name: 'fitness_center', icon: Dumbbell },
-    { name: 'movie', icon: Film },
-    { name: 'local_cafe', icon: Coffee },
-    { name: 'gift', icon: Gift },
-    { name: 'build', icon: Wrench },
+const ICONS = [
+    'shopping_cart', 'restaurant', 'commute', 'payments',
+    'school', 'medical_services', 'flight', 'savings',
+    'work', 'home', 'pets', 'fitness_center',
+    'movie', 'local_cafe', 'gift', 'build'
 ];
 
 export function CategoryDialog({ trigger, category, open: controlledOpen, onOpenChange: setControlledOpen }: CategoryDialogProps) {
@@ -126,7 +108,7 @@ export function CategoryDialog({ trigger, category, open: controlledOpen, onOpen
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label className="text-right">Icon</Label>
                         <div className="col-span-3 grid grid-cols-8 gap-2">
-                            {ICONS.map(({ name: iconName, icon: IconComponent }) => (
+                            {ICONS.map(iconName => (
                                 <label key={iconName} className="cursor-pointer">
                                     <input
                                         type="radio"
@@ -136,7 +118,7 @@ export function CategoryDialog({ trigger, category, open: controlledOpen, onOpen
                                         defaultChecked={category?.icon === iconName || (!category && iconName === 'shopping_cart')}
                                     />
                                     <div className="size-8 rounded-md flex items-center justify-center border border-transparent peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary hover:bg-slate-50 transition-all">
-                                        <IconComponent size={18} />
+                                        <span className="material-symbols-outlined text-[18px]">{iconName}</span>
                                     </div>
                                 </label>
                             ))}
@@ -151,4 +133,3 @@ export function CategoryDialog({ trigger, category, open: controlledOpen, onOpen
         </Dialog>
     );
 }
-

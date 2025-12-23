@@ -7,25 +7,16 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
 export function useSync() {
-    const { user, isGuest, isLoading: isAuthLoading } = useAuth();
+    const { user, isGuest } = useAuth();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSynced, setLastSynced] = useState<Date | null>(null);
-    const [hasCompletedInitialSync, setHasCompletedInitialSync] = useState(false);
     const queryClient = useQueryClient();
 
     const isSyncingRef = useRef(false);
-    const hasStartedRef = useRef(false);
 
     const runSync = useCallback(async () => {
         if (!user || isGuest) return;
         if (isSyncingRef.current) return;
-
-        // Don't attempt sync if offline
-        if (!navigator.onLine) {
-            console.log('Sync skipped: offline');
-            setHasCompletedInitialSync(true);
-            return;
-        }
 
         isSyncingRef.current = true;
         setIsSyncing(true);
@@ -37,24 +28,23 @@ export function useSync() {
             await syncEngine.pull(user.id);
 
             setLastSynced(new Date());
-            setHasCompletedInitialSync(true);
             console.log('Sync completed successfully');
         } catch (error) {
             console.error('Sync failed:', error);
-            // Even on failure, mark as completed so we don't show skeleton forever
-            setHasCompletedInitialSync(true);
+            // Don't toast for background sync failures usually, unless critical
         } finally {
             setIsSyncing(false);
             isSyncingRef.current = false;
         }
-    }, [user, isGuest]);
+    }, [user, isGuest]); // Removed isSyncing dependency
 
     useEffect(() => {
-        // Subscribe to SyncEngine updates to refetch queries
+        // Subscribe to SyncEngine updates to invalidate queries
         const unsubscribe = syncEngine.subscribe(() => {
-            console.log('SyncEngine notified update. Refetching queries...');
-            // Use refetchQueries instead of invalidateQueries to force immediate update
-            queryClient.refetchQueries();
+            console.log('SyncEngine notified update. Invalidating queries...');
+            queryClient.invalidateQueries();
+            // We can be more specific: ['transactions'], ['wallets'], etc.
+            // But invalidating all is safer for now.
         });
 
         return () => {
@@ -63,17 +53,7 @@ export function useSync() {
     }, [queryClient]);
 
     useEffect(() => {
-        // Reset state when user changes (login/logout)
-        if (!user || isGuest) {
-            setHasCompletedInitialSync(true); // Guests/no-auth have local data immediately
-            hasStartedRef.current = false;
-            return;
-        }
-
-        // For authenticated users, also show local data immediately
-        // Set hasCompletedInitialSync to true RIGHT AWAY so UI loads local data
-        // Sync will happen in background and update data when ready
-        setHasCompletedInitialSync(true);
+        if (!user || isGuest) return;
 
         const handleOnline = () => {
             console.log('App is back online. Syncing...');
@@ -88,11 +68,9 @@ export function useSync() {
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
 
-        // Initial sync on mount - only once per user session (runs in background)
-        if (navigator.onLine && !hasStartedRef.current) {
-            hasStartedRef.current = true;
-            setIsSyncing(true);
-            runSync(); // This runs in background, UI already has local data
+        // Initial sync on mount
+        if (navigator.onLine) {
+            runSync();
         }
 
         return () => {
@@ -104,8 +82,6 @@ export function useSync() {
     return {
         isSyncing,
         lastSynced,
-        hasCompletedInitialSync,
         runSync
     };
 }
-

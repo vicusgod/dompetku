@@ -13,7 +13,6 @@ import {
 import { format, startOfMonth, endOfMonth, subMonths, startOfWeek, endOfWeek, subDays, startOfDay, endOfDay } from 'date-fns';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Search, Calendar, Filter, Plus } from 'lucide-react';
 
 export function TransactionFilters({ wallets }: { wallets: any[] }) {
     const searchParams = useSearchParams();
@@ -121,7 +120,7 @@ export function TransactionFilters({ wallets }: { wallets: any[] }) {
         <section className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-4">
             {/* Row 1: Search */}
             <div className="relative group w-full">
-                <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors material-symbols-outlined text-[20px]">search</span>
                 <input
                     className="w-full h-12 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary focus:bg-white transition-all shadow-sm"
                     placeholder="Search transactions..."
@@ -146,7 +145,7 @@ export function TransactionFilters({ wallets }: { wallets: any[] }) {
                     <Select onValueChange={handlePeriodChange} value={getPeriodValue()}>
                         <SelectTrigger className="w-full h-12 rounded-2xl bg-white border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all shadow-sm font-medium">
                             <div className="flex items-center gap-2 truncate">
-                                <Calendar size={20} />
+                                <span className="material-symbols-outlined text-[20px]">calendar_today</span>
                                 <SelectValue placeholder="Period" />
                             </div>
                         </SelectTrigger>
@@ -165,7 +164,7 @@ export function TransactionFilters({ wallets }: { wallets: any[] }) {
                     <Select onValueChange={handleWalletChange} value={currentWallet}>
                         <SelectTrigger className="w-full h-12 rounded-2xl bg-white border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all shadow-sm font-medium">
                             <div className="flex items-center gap-2 truncate">
-                                <Filter size={20} />
+                                <span className="material-symbols-outlined text-[20px]">filter_list</span>
                                 <SelectValue placeholder="All Wallets">
                                     {currentWallet === 'all' ? 'All Wallets' : wallets.find(w => w.id === currentWallet)?.name || 'Wallet'}
                                 </SelectValue>
@@ -186,7 +185,7 @@ export function TransactionFilters({ wallets }: { wallets: any[] }) {
             {/* Row 3: Add Transaction Button */}
             <AddTransactionDialog trigger={
                 <Button className="w-full h-12 bg-[#1d3cdd] hover:bg-[#152cad] text-white text-base font-bold rounded-2xl shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                    <Plus size={24} />
+                    <span className="material-symbols-outlined text-[24px]">add</span>
                     <span>Add Transaction</span>
                 </Button>
             } />
