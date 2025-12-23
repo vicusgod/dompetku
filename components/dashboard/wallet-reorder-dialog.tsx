@@ -10,10 +10,8 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { reorderWallets } from '@/actions/wallets';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/utils';
+// import { reorderWallets } from '@/actions/wallets'; // Removed
+import { useReorderWallets } from '@/hooks/use-data';
 
 interface WalletReorderDialogProps {
     wallets: any[];
@@ -23,7 +21,9 @@ interface WalletReorderDialogProps {
 export function WalletReorderDialog({ wallets: initialWallets, children }: WalletReorderDialogProps) {
     const [wallets, setWallets] = useState(initialWallets);
     const [isOpen, setIsOpen] = useState(false);
-    const [isPending, startTransition] = useTransition();
+
+    const reorderMutation = useReorderWallets();
+    const isPending = reorderMutation.isPending;
 
     const moveUp = (index: number) => {
         if (index === 0) return;
@@ -40,19 +40,14 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
     };
 
     const handleSave = () => {
-        startTransition(async () => {
-            const updates = wallets.map((w, index) => ({
-                id: w.id,
-                order: index,
-            }));
+        const updates = wallets.map((w, index) => ({
+            id: w.id,
+            order: index,
+        }));
 
-            const result = await reorderWallets(updates);
-
-            if (result.success) {
-                toast.success('Wallets reordered successfully');
+        reorderMutation.mutate(updates, {
+            onSuccess: () => {
                 setIsOpen(false);
-            } else {
-                toast.error('Failed to reorder wallets');
             }
         });
     };
