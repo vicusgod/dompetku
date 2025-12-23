@@ -3,8 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
     <title>dompetku</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,29 +21,383 @@
             font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #dbeafe 0%, #f3e8ff 50%, #fce7f3 100%);
             min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            height: 80px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar .material-symbols-outlined {
+            color: #94a3b8;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .section-link {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Wallet Cards */
+        .wallets-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin: 0 -16px;
+            padding: 0 16px;
+            scrollbar-width: none;
+        }
+
+        .wallets-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .wallet-card {
+            min-width: calc(100vw - 48px);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .wallet-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .wallet-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .wallet-type {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .wallet-balance {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .stat-card.full-width {
+            grid-column: span 2;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.blue {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .stat-icon.green {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .stat-icon.red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .stat-value.small {
+            font-size: 16px;
+        }
+
+        /* Transactions */
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        .transaction-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transaction-category {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .transaction-date {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .transaction-amount {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .transaction-amount.income {
+            color: #16a34a;
+        }
+
+        .transaction-amount.expense {
+            color: #1e293b;
+        }
+
+        /* Bottom Navigation */
+        nav {
+            height: 64px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: #2563eb;
+        }
+
+        .nav-item .material-symbols-outlined {
+            font-size: 24px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #2563eb;
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Offline Banner */
+        .offline-banner {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 8px 16px;
+            font-size: 13px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .offline-banner .material-symbols-outlined {
+            font-size: 18px;
+        }
+
+        /* Loading State */
+        .loading-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
             padding: 24px;
             text-align: center;
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 40px 32px;
-            max-width: 400px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .logo {
+        .loading-logo {
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 800;
             color: #1e293b;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
         .spinner {
@@ -48,7 +407,7 @@
             border-top-color: #2563eb;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 24px auto;
+            margin-bottom: 16px;
         }
 
         @keyframes spin {
@@ -57,25 +416,335 @@
             }
         }
 
-        p {
-            color: #64748b;
-            font-size: 16px;
-            line-height: 1.6;
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="logo">dompetku</div>
+    <!-- Loading State -->
+    <div id="loading-view" class="loading-container">
+        <div class="loading-logo">dompetku</div>
         <div class="spinner"></div>
-        <p>Loading...</p>
+        <p style="color: #64748b;">Loading your data...</p>
+    </div>
+
+    <!-- App Shell -->
+    <div id="app-view" class="app-container hidden">
+        <!-- Offline Banner -->
+        <div id="offline-banner" class="offline-banner hidden">
+            <span class="material-symbols-outlined">wifi_off</span>
+            <span>You're offline - showing cached data</span>
+        </div>
+
+        <header>
+            <div class="logo">dompetku</div>
+            <div class="avatar">
+                <span class="material-symbols-outlined">person</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Wallets Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">My Wallets</h2>
+                    <a href="/wallets" class="section-link">View All</a>
+                </div>
+                <div id="wallets-container" class="wallets-scroll">
+                    <!-- Wallets will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="section">
+                <div class="stats-grid">
+                    <div class="stat-card full-width">
+                        <div class="stat-header">
+                            <div class="stat-icon blue">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">account_balance</span>
+                            </div>
+                            <span class="stat-label">Total Balance</span>
+                        </div>
+                        <div id="total-balance" class="stat-value">Rp 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">trending_up</span>
+                            </div>
+                            <span class="stat-label">Income</span>
+                        </div>
+                        <div id="total-income" class="stat-value small">Rp 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon red">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">trending_down</span>
+                            </div>
+                            <span class="stat-label">Expense</span>
+                        </div>
+                        <div id="total-expense" class="stat-value small">Rp 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Transactions</h2>
+                    <a href="/transactions" class="section-link">View All</a>
+                </div>
+                <div id="transactions-container" class="card">
+                    <!-- Transactions will be inserted here -->
+                </div>
+            </div>
+        </main>
+
+        <nav>
+            <a href="/dashboard" class="nav-item active">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Home</span>
+            </a>
+            <a href="/transactions" class="nav-item">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span>Transactions</span>
+            </a>
+            <a href="/budget" class="nav-item">
+                <span class="material-symbols-outlined">savings</span>
+                <span>Budget</span>
+            </a>
+            <a href="/settings" class="nav-item">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Settings</span>
+            </a>
+        </nav>
     </div>
 
     <script>
-        // For offline-first PWA: immediately redirect to dashboard
-        // The dashboard should load from cache if available
-        window.location.replace('/dashboard');
+        // Utility Functions
+        function formatCurrency(amount, currency = 'IDR') {
+            const num = parseFloat(amount) || 0;
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+        }
+
+        // Get data from localStorage
+        function getStorageKey() {
+            // Check for guest mode first
+            const cookies = document.cookie.split(';');
+            const guestCookie = cookies.find(c => c.trim().startsWith('duit-guest-mode='));
+            if (guestCookie && guestCookie.includes('true')) {
+                return 'guest';
+            }
+
+            // Check for authenticated user data
+            // Try to find any auth user data
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('duit_auth_') && key.endsWith('_wallets')) {
+                    return key.replace('_wallets', '').replace('duit_auth_', '');
+                }
+            }
+
+            return 'guest';
+        }
+
+        function getData(type) {
+            const prefix = getStorageKey() === 'guest' ? 'guest' : `duit_auth_${getStorageKey()}`;
+            const key = `${prefix}_${type}`;
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function getWallets() {
+            return getData('wallets').sort((a, b) => (a.order || 0) - (b.order || 0));
+        }
+
+        function getTransactions() {
+            return getData('transactions').sort((a, b) =>
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+        }
+
+        function getCategories() {
+            return getData('categories');
+        }
+
+        // Render Functions
+        function renderWallets(wallets) {
+            const container = document.getElementById('wallets-container');
+
+            if (wallets.length === 0) {
+                container.innerHTML = `
+                    <a href="/wallets" class="wallet-card" style="justify-content: center; align-items: center; border: 2px dashed rgba(59, 130, 246, 0.3);">
+                        <div class="wallet-icon" style="width: 56px; height: 56px;">
+                            <span class="material-symbols-outlined" style="font-size: 28px;">add</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="wallet-name">Create Wallet</div>
+                            <div class="wallet-type">Start tracking your money</div>
+                        </div>
+                    </a>
+                `;
+                return;
+            }
+
+            const colors = [
+                { bg: 'rgba(59, 130, 246, 0.1)', text: '#2563eb' },
+                { bg: 'rgba(168, 85, 247, 0.1)', text: '#9333ea' },
+                { bg: 'rgba(236, 72, 153, 0.1)', text: '#db2777' },
+                { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669' },
+            ];
+
+            container.innerHTML = wallets.slice(0, 4).map((wallet, index) => {
+                const color = colors[index % colors.length];
+                const icon = wallet.type === 'CASH' ? 'wallet' :
+                    wallet.type === 'BANK' ? 'account_balance' : 'account_balance_wallet';
+                return `
+                    <div class="wallet-card">
+                        <div class="wallet-header">
+                            <div class="wallet-icon" style="background: ${color.bg}; color: ${color.text};">
+                                <span class="material-symbols-outlined">${icon}</span>
+                            </div>
+                        </div>
+                        <div class="wallet-name">${wallet.name}</div>
+                        <div class="wallet-type">${wallet.type.replace('_', ' ')}</div>
+                        <div class="wallet-balance">${formatCurrency(wallet.balance)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTransactions(transactions, categories) {
+            const container = document.getElementById('transactions-container');
+            const recent = transactions.slice(0, 5);
+
+            if (recent.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 32px 16px; color: #64748b;">
+                        No transactions yet
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recent.map(tx => {
+                const category = categories.find(c => c.id === tx.categoryId);
+                const isIncome = tx.type === 'INCOME';
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-left">
+                            <div class="transaction-icon">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">
+                                    ${category?.icon || (isIncome ? 'payments' : 'shopping_cart')}
+                                </span>
+                            </div>
+                            <div class="transaction-info">
+                                <div class="transaction-category">${category?.name || 'Uncategorized'}</div>
+                                <div class="transaction-date">${formatDate(tx.date)}</div>
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${isIncome ? 'income' : 'expense'}">
+                            ${isIncome ? '+' : '-'}${formatCurrency(tx.amount)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStats(wallets, transactions) {
+            const totalBalance = wallets.reduce((sum, w) => sum + parseFloat(w.balance || 0), 0);
+
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const thisMonthTx = transactions.filter(t => new Date(t.date) >= startOfMonth);
+
+            const income = thisMonthTx
+                .filter(t => t.type === 'INCOME')
+                .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+
+            const expense = thisMonthTx
+                .filter(t => t.type === 'EXPENSE')
+                .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+
+            document.getElementById('total-balance').textContent = formatCurrency(totalBalance);
+            document.getElementById('total-income').textContent = formatCurrency(income);
+            document.getElementById('total-expense').textContent = formatCurrency(expense);
+        }
+
+        // Main Logic
+        function init() {
+            const wallets = getWallets();
+            const transactions = getTransactions();
+            const categories = getCategories();
+            const hasData = wallets.length > 0 || transactions.length > 0;
+
+            // Show offline banner
+            if (!navigator.onLine) {
+                document.getElementById('offline-banner').classList.remove('hidden');
+            }
+
+            // Render data
+            renderWallets(wallets);
+            renderTransactions(transactions, categories);
+            renderStats(wallets, transactions);
+
+            // Show app view
+            document.getElementById('loading-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+        }
+
+        // Try to navigate to real dashboard if online
+        function tryNavigate() {
+            // Give a brief moment to show the local data, then try to navigate
+            // to the real dashboard if possible
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    // We're online, try to load the real app
+                    window.location.replace('/dashboard');
+                } else {
+                    // We're offline, show local data
+                    init();
+                }
+            }, 100);
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            document.getElementById('offline-banner').classList.add('hidden');
+            // Optionally reload to get real app
+            window.location.replace('/dashboard');
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offline-banner').classList.remove('hidden');
+        });
+
+        // Start the app
+        // If service worker cached the real dashboard, try that first
+        // Otherwise show local data
+        if (navigator.onLine) {
+            // Online - redirect to real dashboard
+            window.location.replace('/dashboard');
+        } else {
+            // Offline - show local data immediately
+            init();
+        }
     </script>
 </body>
 

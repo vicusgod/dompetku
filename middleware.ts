@@ -60,6 +60,16 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        /*
+         * Match all request paths except:
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico, icon files
+         * - Static files (svg, png, jpg, etc.)
+         * - Service worker files
+         * - PWA related files
+         */
+        '/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-.*|fallback-.*|offline.html|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
     ],
 }
+
