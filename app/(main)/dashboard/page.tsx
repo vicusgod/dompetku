@@ -7,20 +7,11 @@ import { SpendingChart } from '@/components/dashboard/spending-chart';
 import { WalletCarousel } from '@/components/dashboard/wallet-carousel';
 import { useWallets, useTransactions, useCategories } from '@/hooks/use-data';
 import { useSettings } from '@/components/providers/settings-provider';
+import { useAuth } from '@/components/providers/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
-
 export default function DashboardPage() {
-    const [user, setUser] = useState<any>(null);
-
-    useEffect(() => {
-        const supabase = createClient();
-        supabase.auth.getUser().then(({ data }) => {
-            setUser(data.user);
-        });
-    }, []);
+    const { user } = useAuth();
 
     const { data: wallets = [], isLoading: isLoadingWallets } = useWallets();
     const { data: transactions = [], isLoading: isLoadingTransactions } = useTransactions();
