@@ -336,3 +336,33 @@ export function useDeleteBudget() {
         }
     });
 }
+
+export function useReorderWallets() {
+    const { user, isGuest } = useAuth();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        networkMode: 'always',
+        mutationFn: async (updates: { id: string; order: number }[]) => {
+            // 1. Update Locally
+            updates.forEach(u => {
+                LocalDataStore.updateWallet(u.id, { order: u.order });
+            });
+
+            // 2. Queue if Auth
+            if (user && !isGuest) {
+                // For simplified sync, we rely on the fact that next pull will get correct order,
+                // OR we push individual updates. Individual is safer for SyncEngine.
+                updates.forEach(u => {
+                    MutationQueue.enqueue('UPDATE_WALLET', { id: u.id, order: u.order }, user.id);
+                });
+                // Trigger sync
+                syncEngine.push(user.id).catch(console.error);
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wallets'] });
+            toast.success('Wallets reordered');
+        }
+    });
+}
