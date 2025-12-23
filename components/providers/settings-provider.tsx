@@ -22,7 +22,7 @@ export function SettingsProvider({
     initialSettings?: Settings; // Made optional
 }) {
     const defaultSettings: Settings = {
-        currency: 'USD',
+        currency: 'IDR',
         language: 'en',
         hideBalances: false,
     };

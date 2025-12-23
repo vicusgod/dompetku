@@ -56,27 +56,8 @@ export default function DashboardPage() {
     const { currency, hideBalances } = settings;
     const balanceStyle = hideBalances ? "blur-md select-none" : "";
 
-    if (isLoading) {
-        return (
-            <>
-                <header className="h-20 grid grid-cols-3 items-center px-8 py-4 border-b border-gray-200/50 bg-white/40 backdrop-blur-md z-10 sticky top-0">
-                    <Skeleton className="h-8 w-32" />
-                    <Skeleton className="h-10 w-full max-w-[320px] mx-auto" />
-                    <Skeleton className="h-10 w-20 ml-auto" />
-                </header>
-                <div className="flex-1 p-4 md:p-8">
-                    <div className="max-w-[1200px] mx-auto flex flex-col gap-8">
-                        <Skeleton className="h-64 w-full rounded-2xl" />
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <Skeleton className="h-48 w-full rounded-2xl" />
-                            <Skeleton className="h-48 w-full rounded-2xl" />
-                            <Skeleton className="h-48 w-full rounded-2xl" />
-                        </div>
-                    </div>
-                </div>
-            </>
-        );
-    }
+    // Loading states for individual sections
+    const isLoadingStats = isLoadingWallets || isLoadingTransactions;
 
     return (
         <>
@@ -111,17 +92,15 @@ export default function DashboardPage() {
                     {/* Main Content Area */}
                     <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
 
-                        {/* 1. My Wallets (Mobile: Order 1, Desktop: Row 2 Left) */}
-                        {wallets && wallets.length > 0 && (
-                            <WalletCarousel wallets={wallets} currency={currency} hideBalances={hideBalances} />
-                        )}
+                        {/* 1. My Wallets */}
+                        <WalletCarousel currency={currency} hideBalances={hideBalances} />
 
-                        {/* 2. Quick Transaction (Mobile: Order 2, Desktop: Row 2 Right) */}
+                        {/* 2. Quick Transaction */}
                         <div className="order-2 lg:order-none lg:col-span-1">
                             <QuickTransaction />
                         </div>
 
-                        {/* 3. Recent Transactions (Mobile: Order 3, Desktop: Row 3 Left) */}
+                        {/* 3. Recent Transactions */}
                         <div className="order-3 lg:order-none glass-panel rounded-2xl p-6 lg:col-span-2 flex flex-col bg-white/60">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-slate-800 text-lg font-bold">Recent Transactions</h2>
@@ -131,43 +110,63 @@ export default function DashboardPage() {
                                 </Link>
                             </div>
                             <div className="flex flex-col gap-4">
-                                {stats.recentTransactions && stats.recentTransactions.length > 0 ? stats.recentTransactions.map((t: any) => {
-                                    const isIncome = t.type === 'INCOME';
-                                    const category = categories.find((c: any) => c.id === t.categoryId);
-                                    return (
-                                        <div key={t.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/50 border border-transparent hover:border-white/50 transition-all cursor-pointer group">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:${isIncome ? 'bg-green-600' : 'bg-primary'} group-hover:text-white transition-colors shadow-sm`}>
-                                                    <span className="material-symbols-outlined text-[20px]">
-                                                        {isIncome ? 'work' : 'shopping_cart'}
-                                                    </span>
+                                {isLoadingTransactions || isLoadingCategories ? (
+                                    <>
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="flex items-center justify-between p-3">
+                                                <div className="flex items-center gap-4">
+                                                    <Skeleton className="size-10 rounded-full" />
+                                                    <div className="flex flex-col gap-2">
+                                                        <Skeleton className="h-4 w-32" />
+                                                        <Skeleton className="h-3 w-20" />
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-slate-800 text-sm font-bold">{category?.name || t.categoryName || 'Uncategorized'}</span>
-                                                    <span className="text-slate-500 text-xs">{new Date(t.date).toLocaleDateString()} • {t.type}</span>
-                                                </div>
+                                                <Skeleton className="h-5 w-24" />
                                             </div>
-                                            <span className={`${isIncome ? 'text-green-600' : 'text-slate-800'} font-medium text-sm transition-all duration-300 ${balanceStyle}`}>
-                                                {isIncome ? '+' : '-'}{formatCurrency(parseFloat(t.amount), currency)}
-                                            </span>
-                                        </div>
-                                    );
-                                }) : (
+                                        ))}
+                                    </>
+                                ) : stats.recentTransactions && stats.recentTransactions.length > 0 ? (
+                                    stats.recentTransactions.map((t: any) => {
+                                        const isIncome = t.type === 'INCOME';
+                                        const category = categories.find((c: any) => c.id === t.categoryId);
+                                        return (
+                                            <div key={t.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/50 border border-transparent hover:border-white/50 transition-all cursor-pointer group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:${isIncome ? 'bg-green-600' : 'bg-primary'} group-hover:text-white transition-colors shadow-sm`}>
+                                                        <span className="material-symbols-outlined text-[20px]">
+                                                            {isIncome ? 'work' : 'shopping_cart'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-slate-800 text-sm font-bold">{category?.name || t.categoryName || 'Uncategorized'}</span>
+                                                        <span className="text-slate-500 text-xs">{new Date(t.date).toLocaleDateString()} • {t.type}</span>
+                                                    </div>
+                                                </div>
+                                                <span className={`${isIncome ? 'text-green-600' : 'text-slate-800'} font-medium text-sm transition-all duration-300 ${balanceStyle}`}>
+                                                    {isIncome ? '+' : '-'}{formatCurrency(parseFloat(t.amount), currency)}
+                                                </span>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
                                     <p className="text-slate-500 text-center py-8">No recent transactions</p>
                                 )}
                             </div>
                         </div>
 
-                        {/* 4. Spending Summary (Mobile: Order 4, Desktop: Row 3 Right) */}
+                        {/* 4. Spending Summary */}
                         <div className="order-4 lg:order-none glass-panel rounded-2xl p-6 lg:col-span-1 flex flex-col bg-white/60">
                             <h2 className="text-slate-800 text-lg font-bold mb-6">Spending Summary</h2>
-                            <SpendingChart chartData={stats.chartData} expense={stats.expense} currency={currency} />
+                            {isLoadingTransactions ? (
+                                <Skeleton className="h-[250px] w-full rounded-full opacity-20" />
+                            ) : (
+                                <SpendingChart chartData={stats.chartData} expense={stats.expense} currency={currency} />
+                            )}
                         </div>
 
-                        {/* 5, 6, 7. Stats Section (Mobile: Order 5/6, Desktop: Row 1 Top) */}
-                        {/* We group stats in a wrapper to place them together on desktop, but split on mobile */}
+                        {/* 5, 6, 7. Stats Section */}
                         <section className="contents lg:col-span-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:mb-8">
-                            {/* Total Balance (Mobile: Order 5) */}
+                            {/* Total Balance */}
                             <div className="order-5 lg:order-none glass-panel p-6 rounded-2xl relative overflow-hidden group bg-white/60">
                                 <div className="absolute right-[-20px] top-[-20px] bg-primary/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
                                 <div className="relative z-10 flex flex-col gap-1">
@@ -175,7 +174,11 @@ export default function DashboardPage() {
                                         <span className="p-2 bg-primary/10 rounded-lg text-primary material-symbols-outlined text-[20px]">account_balance</span>
                                         <p className="text-slate-500 text-sm font-medium">Total Balance</p>
                                     </div>
-                                    <p className={`text-slate-800 text-3xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.balance, currency)}</p>
+                                    {isLoadingWallets ? (
+                                        <Skeleton className="h-10 w-48 rounded-lg" />
+                                    ) : (
+                                        <p className={`text-slate-800 text-3xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.balance, currency)}</p>
+                                    )}
                                     <div className="flex items-center gap-1 mt-2">
                                         <span className="bg-green-500/10 text-green-600 text-xs font-bold px-2 py-0.5 rounded-full">+5.2%</span>
                                         <p className="text-slate-400 text-xs">from last month</p>
@@ -183,23 +186,31 @@ export default function DashboardPage() {
                                 </div>
                             </div>
 
-                            {/* Income (Mobile: Order 6) */}
+                            {/* Income */}
                             <div className="order-6 lg:order-none glass-panel p-6 rounded-2xl flex flex-col gap-1 bg-white/60">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="p-2 bg-green-500/10 rounded-lg text-green-600 material-symbols-outlined text-[20px]">trending_up</span>
                                     <p className="text-slate-500 text-sm font-medium">Income (Month)</p>
                                 </div>
-                                <p className={`text-slate-800 text-2xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.income, currency)}</p>
+                                {isLoadingTransactions ? (
+                                    <Skeleton className="h-8 w-40 rounded-lg" />
+                                ) : (
+                                    <p className={`text-slate-800 text-2xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.income, currency)}</p>
+                                )}
                                 <p className="text-green-600 text-sm mt-1 font-medium">+12% vs last month</p>
                             </div>
 
-                            {/* Expense (Mobile: Order 7) */}
+                            {/* Expense */}
                             <div className="order-7 lg:order-none glass-panel p-6 rounded-2xl flex flex-col gap-1 bg-white/60">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="p-2 bg-red-500/10 rounded-lg text-red-500 material-symbols-outlined text-[20px]">trending_down</span>
                                     <p className="text-slate-500 text-sm font-medium">Expense (Month)</p>
                                 </div>
-                                <p className={`text-slate-800 text-2xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.expense, currency)}</p>
+                                {isLoadingTransactions ? (
+                                    <Skeleton className="h-8 w-40 rounded-lg" />
+                                ) : (
+                                    <p className={`text-slate-800 text-2xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.expense, currency)}</p>
+                                )}
                                 <p className="text-red-500 text-sm mt-1 font-medium">+2% vs last month</p>
                             </div>
                         </section>

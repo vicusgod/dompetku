@@ -5,14 +5,16 @@ import Link from 'next/link';
 import { formatCurrency, cn } from '@/lib/utils';
 import { WalletReorderDialog } from '@/components/dashboard/wallet-reorder-dialog';
 import { WalletActionsMenu } from '@/components/dashboard/wallet-actions-menu';
+import { useWallets } from '@/hooks/use-data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface WalletCarouselProps {
-    wallets: any[];
     currency: string;
     hideBalances: boolean;
 }
 
-export function WalletCarousel({ wallets, currency, hideBalances }: WalletCarouselProps) {
+export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) {
+    const { data: wallets = [], isLoading } = useWallets();
     const [activeIndex, setActiveIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +29,33 @@ export function WalletCarousel({ wallets, currency, hideBalances }: WalletCarous
             setActiveIndex(index);
         }
     };
+
+    if (isLoading) {
+        return (
+            <section className="order-1 lg:order-none lg:col-span-2 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <Skeleton className="h-7 w-32" />
+                    <Skeleton className="h-5 w-16" />
+                </div>
+                {/* Skeleton Grid matched to real grid logic */}
+                <div className="flex overflow-x-auto pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0 gap-4 sm:grid sm:grid-cols-2 scrollbar-none">
+                    {[1, 2].map((i) => (
+                        <div key={i} className="min-w-full sm:min-w-0 p-5 rounded-2xl border border-white/60 bg-white/40 h-[180px] flex flex-col justify-between">
+                            <div className="flex justify-between items-start">
+                                <Skeleton className="h-12 w-12 rounded-full" />
+                                <Skeleton className="h-8 w-8 rounded-full" />
+                            </div>
+                            <div>
+                                <Skeleton className="h-6 w-32 mb-2" />
+                                <Skeleton className="h-4 w-24" />
+                            </div>
+                            <Skeleton className="h-8 w-28" />
+                        </div>
+                    ))}
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="order-1 lg:order-none lg:col-span-2 flex flex-col gap-4">
