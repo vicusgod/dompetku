@@ -2,7 +2,8 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-const connectionString = process.env.DATABASE_URL!;
+// Sanitize connection string to remove any surrounding quotes that might have been added in env vars
+const connectionString = process.env.DATABASE_URL?.replace(/["']/g, "")!;
 
 // Disable prefetch as it is not supported for "Transaction" pool mode
 const client = postgres(connectionString, { prepare: false });
