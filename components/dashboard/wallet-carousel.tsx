@@ -7,6 +7,7 @@ import { WalletReorderDialog } from '@/components/dashboard/wallet-reorder-dialo
 import { WalletActionsMenu } from '@/components/dashboard/wallet-actions-menu';
 import { useWallets } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSyncState } from '@/components/providers/sync-provider';
 
 interface WalletCarouselProps {
     currency: string;
@@ -15,6 +16,7 @@ interface WalletCarouselProps {
 
 export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) {
     const { data: wallets = [], isLoading } = useWallets();
+    const { isSyncing } = useSyncState();
     const [activeIndex, setActiveIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +32,8 @@ export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) 
         }
     };
 
-    if (isLoading) {
+    // Show skeleton if query is loading OR sync is in progress with no local data
+    if (isLoading || (isSyncing && wallets.length === 0)) {
         return (
             <section className="order-1 lg:order-none lg:col-span-2 flex flex-col gap-4">
                 <div className="flex items-center justify-between">

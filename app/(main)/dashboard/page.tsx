@@ -10,14 +10,19 @@ import { useSettings } from '@/components/providers/settings-provider';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
+import { useSyncState } from '@/components/providers/sync-provider';
+
 export default function DashboardPage() {
     const { user } = useAuth();
+    const { isSyncing } = useSyncState();
 
     const { data: wallets = [], isLoading: isLoadingWallets } = useWallets();
     const { data: transactions = [], isLoading: isLoadingTransactions } = useTransactions();
     const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
 
-    const isLoading = isLoadingWallets || isLoadingTransactions || isLoadingCategories;
+    // Consider syncing state: if sync is in progress and data is empty, treat as loading
+    const isDataEmpty = wallets.length === 0 && transactions.length === 0;
+    const isEffectivelyLoading = isLoadingWallets || isLoadingTransactions || isLoadingCategories || (isSyncing && isDataEmpty);
 
     // Calculate stats from fetched data
     const stats = useMemo(() => {
@@ -57,7 +62,8 @@ export default function DashboardPage() {
     const balanceStyle = hideBalances ? "blur-md select-none" : "";
 
     // Loading states for individual sections
-    const isLoadingStats = isLoadingWallets || isLoadingTransactions;
+    // Use combined loading state for UI consistency
+    const isLoadingStats = isEffectivelyLoading;
 
     return (
         <>

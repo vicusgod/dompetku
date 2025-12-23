@@ -89,11 +89,12 @@ const withPWA = require("next-pwa")({
       },
     },
     {
+      // Critical: CacheFirst for navigation ensures offline access to visited pages
       urlPattern: ({ request }: { request: any }) => request.mode === "navigate",
-      handler: "StaleWhileRevalidate",
+      handler: "CacheFirst",
       options: {
         cacheName: "pages",
-        expiration: { maxEntries: 32, maxAgeSeconds: 24 * 60 * 60 },
+        expiration: { maxEntries: 32, maxAgeSeconds: 7 * 24 * 60 * 60 },
       },
     },
   ],
