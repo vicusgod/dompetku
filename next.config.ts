@@ -10,6 +10,8 @@ const withPWA = require("next-pwa")({
   },
   // Force cache these key pages so they are available offline even if not visited yet
   additionalManifestEntries: [
+    { url: "/", revision: "v1" },
+    { url: "/login", revision: "v1" },
     { url: "/dashboard", revision: "v1" },
     { url: "/wallets", revision: "v1" },
     { url: "/transactions", revision: "v1" },
