@@ -16,6 +16,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, ArrowDown, ArrowUp, Tag, Pencil, Trash2 } from 'lucide-react';
 
 export function CategoryList() {
     const [editingCategory, setEditingCategory] = useState<any>(null);
@@ -68,7 +69,7 @@ export function CategoryList() {
                 </div>
                 <CategoryDialog trigger={
                     <Button className="w-full rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-200 transition-all h-10 text-sm">
-                        <span className="material-symbols-outlined text-[18px] mr-2">add</span>
+                        <Plus size={18} className="mr-2" />
                         Add Category
                     </Button>
                 } />
@@ -79,7 +80,7 @@ export function CategoryList() {
                 <div className="bg-slate-100/50 rounded-2xl p-5 border border-slate-200/60">
                     <h3 className="text-xs font-black text-rose-500 uppercase tracking-widest mb-4 flex items-center gap-2 px-1">
                         <span className="flex items-center justify-center size-6 rounded-full bg-rose-100 text-rose-600">
-                            <span className="material-symbols-outlined text-[14px]">south</span>
+                            <ArrowDown size={14} />
                         </span>
                         Expense Categories
                     </h3>
@@ -103,7 +104,7 @@ export function CategoryList() {
                 <div className="bg-slate-100/50 rounded-2xl p-5 border border-slate-200/60">
                     <h3 className="text-xs font-black text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2 px-1">
                         <span className="flex items-center justify-center size-6 rounded-full bg-emerald-100 text-emerald-600">
-                            <span className="material-symbols-outlined text-[14px]">north</span>
+                            <ArrowUp size={14} />
                         </span>
                         Income Categories
                     </h3>
@@ -159,12 +160,14 @@ export function CategoryList() {
 }
 
 // Category Item Component
+import { Icon } from '@/components/ui/icon';
+
 function CategoryItem({ category, onEdit, onDelete }: { category: any; onEdit: () => void; onDelete: () => void }) {
     return (
         <div className="py-2.5 px-3 flex items-center justify-between group bg-white hover:bg-slate-50 transition-all rounded-xl border border-slate-200/60 shadow-xs hover:shadow-md hover:border-slate-300">
             <div className="flex items-center gap-3">
                 <div className={`size-9 rounded-lg flex items-center justify-center text-white shadow-sm ${category.type === 'INCOME' ? 'bg-emerald-500' : 'bg-slate-800'}`}>
-                    <span className="material-symbols-outlined text-[18px]">{category.icon || 'category'}</span>
+                    <Icon name={category.icon || 'category'} size={18} />
                 </div>
                 <div>
                     <h3 className="font-bold text-slate-700 text-sm">{category.name}</h3>
@@ -172,10 +175,10 @@ function CategoryItem({ category, onEdit, onDelete }: { category: any; onEdit: (
             </div>
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button size="icon" variant="ghost" className="size-7 rounded-lg hover:bg-slate-200 text-slate-500" onClick={onEdit}>
-                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                    <Pencil size={16} />
                 </Button>
                 <Button size="icon" variant="ghost" className="size-7 rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-500" onClick={onDelete}>
-                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                    <Trash2 size={16} />
                 </Button>
             </div>
         </div>

@@ -10,8 +10,8 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-// import { reorderWallets } from '@/actions/wallets'; // Removed
 import { useReorderWallets } from '@/hooks/use-data';
+import { Wallet, Landmark, CreditCard, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface WalletReorderDialogProps {
     wallets: any[];
@@ -75,9 +75,7 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded-full bg-slate-200/50 text-slate-500">
-                                    <span className="material-symbols-outlined text-[20px]">
-                                        {wallet.type === 'CASH' ? 'wallet' : wallet.type === 'BANK' ? 'account_balance' : 'account_balance_wallet'}
-                                    </span>
+                                    {wallet.type === 'CASH' ? <Wallet size={20} /> : wallet.type === 'BANK' ? <Landmark size={20} /> : <CreditCard size={20} />}
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-semibold text-sm text-slate-700">{wallet.name}</span>
@@ -90,14 +88,14 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
                                     disabled={index === 0}
                                     className="p-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
                                 >
-                                    <span className="material-symbols-outlined text-[20px]">keyboard_arrow_up</span>
+                                    <ChevronUp size={20} />
                                 </button>
                                 <button
                                     onClick={() => moveDown(index)}
                                     disabled={index === wallets.length - 1}
                                     className="p-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
                                 >
-                                    <span className="material-symbols-outlined text-[20px]">keyboard_arrow_down</span>
+                                    <ChevronDown size={20} />
                                 </button>
                             </div>
                         </div>
@@ -113,3 +111,4 @@ export function WalletReorderDialog({ wallets: initialWallets, children }: Walle
         </Dialog>
     );
 }
+

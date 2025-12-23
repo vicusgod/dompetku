@@ -13,22 +13,27 @@ const withPWA = require("next-pwa")({
   runtimeCaching: [
     {
       // App Shell routes - StaleWhileRevalidate for fast load + background update
-      urlPattern: ({ url }: { url: any }) => url.pathname === "/" || url.pathname === "/dashboard" || url.pathname === "/login",
+      // Include all main navigation routes here to ensure they load instantly from cache
+      urlPattern: ({ url }: { url: any }) => {
+        const pathname = url.pathname;
+        return (
+          pathname === "/" ||
+          pathname === "/dashboard" ||
+          pathname === "/login" ||
+          pathname === "/signup" ||
+          pathname.startsWith("/transactions") ||
+          pathname.startsWith("/wallets") ||
+          pathname.startsWith("/budget") ||
+          pathname.startsWith("/settings")
+        );
+      },
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "start-url",
         expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+          maxEntries: 64,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days - longer retention for app shell
         },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "google-fonts",
-        expiration: { maxEntries: 4, maxAgeSeconds: 365 * 24 * 60 * 60 },
       },
     },
     {
@@ -44,7 +49,7 @@ const withPWA = require("next-pwa")({
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "static-image-assets",
-        expiration: { maxEntries: 64, maxAgeSeconds: 24 * 60 * 60 },
+        expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
@@ -52,7 +57,7 @@ const withPWA = require("next-pwa")({
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "next-image",
-        expiration: { maxEntries: 64, maxAgeSeconds: 24 * 60 * 60 },
+        expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
@@ -86,18 +91,16 @@ const withPWA = require("next-pwa")({
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "next-static",
-        expiration: { maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60 },
+        expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
-      // Navigation requests: NetworkFirst with short timeout for offline resilience
-      // - Online: fetches fresh page from network
-      // - Offline: serves cached page, falls back to offline.html
+      // Fallback for other navigation requests
       urlPattern: ({ request }: { request: any }) => request.mode === "navigate",
       handler: "NetworkFirst",
       options: {
         cacheName: "pages",
-        networkTimeoutSeconds: 3, // Quick timeout for fast offline fallback
+        networkTimeoutSeconds: 3,
         expiration: { maxEntries: 32, maxAgeSeconds: 7 * 24 * 60 * 60 },
       },
     },

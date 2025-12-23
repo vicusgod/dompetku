@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/auth-provider';
 import { logout } from '@/actions/auth';
 import { useSettings } from '@/components/providers/settings-provider';
+import { LogOut, Trash2, Pencil, User, EyeOff } from 'lucide-react';
 
 interface GeneralSettingsFormProps {
     initialSettings: {
@@ -67,7 +68,7 @@ function LogoutButton() {
         return (
             <div className="flex items-center gap-4 p-4 rounded-xl border border-red-100 bg-red-50/50">
                 <div className="h-12 w-12 rounded-xl bg-white border border-red-100 flex items-center justify-center text-red-500 shadow-sm shrink-0">
-                    <span className="material-symbols-outlined text-[24px]">logout</span>
+                    <LogOut size={24} />
                 </div>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -103,7 +104,7 @@ function LogoutButton() {
             <div className="flex items-center justify-between p-4 rounded-xl border border-red-100 bg-red-50/50">
                 <div className="flex items-center gap-4">
                     <div className="bg-white p-2 rounded-lg shadow-sm text-red-500 border border-red-100">
-                        <span className="material-symbols-outlined">logout</span>
+                        <LogOut size={20} />
                     </div>
                     <div>
                         <p className="text-sm font-bold text-slate-900">Logout Account</p>
@@ -142,7 +143,7 @@ function LogoutButton() {
             <div className="flex items-center justify-between p-4 rounded-xl border border-red-100 bg-red-50/50">
                 <div className="flex items-center gap-4">
                     <div className="bg-white p-2 rounded-lg shadow-sm text-red-500 border border-red-100">
-                        <span className="material-symbols-outlined">delete_forever</span>
+                        <Trash2 size={20} />
                     </div>
                     <div>
                         <p className="text-sm font-bold text-slate-900">Delete Account</p>
@@ -225,7 +226,7 @@ function EditProfileDialog({ profile, onSave }: { profile: { displayName: string
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 px-3 gap-1.5 rounded-lg text-xs font-semibold">
-                    <span className="material-symbols-outlined text-[14px]">edit</span>
+                    <Pencil size={14} />
                     Edit
                 </Button>
             </DialogTrigger>
@@ -243,7 +244,7 @@ function EditProfileDialog({ profile, onSave }: { profile: { displayName: string
                             {photoPreview ? (
                                 <img src={photoPreview} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="material-symbols-outlined text-4xl">person</span>
+                                <User size={36} />
                             )}
                         </div>
                         <input
@@ -348,7 +349,7 @@ export function GeneralSettingsForm({ initialSettings, initialProfile }: General
                             {profile.photoUrl ? (
                                 <img src={profile.photoUrl} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="material-symbols-outlined text-4xl">person</span>
+                                <User size={36} />
                             )}
                         </div>
                     </div>
@@ -414,7 +415,7 @@ export function GeneralSettingsForm({ initialSettings, initialProfile }: General
                     <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/50">
                         <div className="flex items-center gap-4">
                             <div className="bg-white p-2 rounded-lg shadow-sm text-slate-500 border border-slate-100">
-                                <span className="material-symbols-outlined">visibility_off</span>
+                                <EyeOff size={20} />
                             </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-900">Hide balances by default</p>

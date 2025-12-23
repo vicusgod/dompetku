@@ -16,6 +16,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useSettings } from '@/components/providers/settings-provider';
+import { Utensils, Car, ShoppingBag, Tag, Trash2 } from 'lucide-react';
 
 interface BudgetCardProps {
     budget: any;
@@ -51,12 +52,10 @@ export function BudgetCard({ budget }: BudgetCardProps) {
             <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
                     <div className={`size-12 rounded-2xl flex items-center justify-center text-xl shadow-sm ${isOverBudget ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-primary'}`}>
-                        <span className="material-symbols-outlined">
-                            {budget.categoryName?.toLowerCase().includes('food') ? 'restaurant' :
-                                budget.categoryName?.toLowerCase().includes('transport') ? 'directions_car' :
-                                    budget.categoryName?.toLowerCase().includes('shop') ? 'shopping_bag' :
-                                        'category'}
-                        </span>
+                        {budget.categoryName?.toLowerCase().includes('food') ? <Utensils size={22} /> :
+                            budget.categoryName?.toLowerCase().includes('transport') ? <Car size={22} /> :
+                                budget.categoryName?.toLowerCase().includes('shop') ? <ShoppingBag size={22} /> :
+                                    <Tag size={22} />}
                     </div>
                     <div>
                         <h4 className="text-slate-800 font-bold text-lg">{budget.categoryName}</h4>
@@ -70,7 +69,7 @@ export function BudgetCard({ budget }: BudgetCardProps) {
                             className="text-slate-300 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-lg disabled:opacity-50"
                             disabled={isPending}
                         >
-                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                            <Trash2 size={20} />
                         </button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
