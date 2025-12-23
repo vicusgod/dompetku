@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dompetku - Loading...</title>
+    <title>dompetku</title>
     <style>
         * {
             margin: 0;
@@ -61,37 +61,6 @@
             color: #64748b;
             font-size: 16px;
             line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-            padding: 14px 32px;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-        }
-
-        .offline-indicator {
-            display: none;
-            background: #fef3c7;
-            color: #92400e;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -99,32 +68,14 @@
 <body>
     <div class="container">
         <div class="logo">dompetku</div>
-        <div id="loading-state">
-            <div class="spinner"></div>
-            <p>Loading your data...</p>
-        </div>
-        <div id="offline-state" style="display: none;">
-            <div class="offline-indicator" style="display: block;">
-                📶 You're currently offline
-            </div>
-            <p>Your cached data should load automatically. If not, try connecting to the internet.</p>
-            <button class="btn" onclick="window.location.href='/dashboard'">Open Dashboard</button>
-        </div>
+        <div class="spinner"></div>
+        <p>Loading...</p>
     </div>
 
     <script>
-        // Try to navigate to dashboard after a short delay
-        setTimeout(() => {
-            window.location.href = '/dashboard';
-        }, 1500);
-
-        // If still here after 5 seconds, show offline state
-        setTimeout(() => {
-            if (!navigator.onLine) {
-                document.getElementById('loading-state').style.display = 'none';
-                document.getElementById('offline-state').style.display = 'block';
-            }
-        }, 5000);
+        // For offline-first PWA: immediately redirect to dashboard
+        // The dashboard should load from cache if available
+        window.location.replace('/dashboard');
     </script>
 </body>
 

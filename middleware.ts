@@ -30,10 +30,14 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // 2. Refresh session if needed
+    // 2. Get session from cookies (no network call - works offline)
+    // Using getSession() instead of getUser() because:
+    // - getSession() reads from cookies/localStorage (offline-compatible)
+    // - getUser() makes a network request to verify token (fails offline)
     const {
-        data: { user },
-    } = await supabase.auth.getUser()
+        data: { session },
+    } = await supabase.auth.getSession()
+    const user = session?.user ?? null
 
     // 3. Check for Guest Mode cookie
     const isGuestMode = request.cookies.get('duit-guest-mode')?.value === 'true';
