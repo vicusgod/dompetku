@@ -8,6 +8,7 @@ import { WalletActionsMenu } from '@/components/dashboard/wallet-actions-menu';
 import { useWallets } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSyncState } from '@/components/providers/sync-provider';
+import { Plus, Wallet, Landmark, CreditCard } from 'lucide-react';
 
 interface WalletCarouselProps {
     currency: string;
@@ -94,7 +95,7 @@ export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) 
                     {wallets.length === 0 ? (
                         <Link href="/wallets" className="min-w-full sm:min-w-0 snap-center glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 border-2 border-dashed border-primary/20 hover:border-primary/50 transition-all group bg-white/40 hover:bg-white/60 h-[180px] cursor-pointer">
                             <div className="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                                <span className="material-symbols-outlined text-[32px]">add</span>
+                                <Plus size={32} />
                             </div>
                             <div className="text-center">
                                 <p className="text-slate-800 font-bold">Create Wallet</p>
@@ -117,9 +118,7 @@ export function WalletCarousel({ currency, hideBalances }: WalletCarouselProps) 
                                 <div key={wallet.id} className={`min-w-full sm:min-w-0 snap-center glass-panel p-5 rounded-2xl border border-white/60 ${color.border} transition-all cursor-pointer group bg-white/40 hover:bg-white/60`}>
                                     <div className="flex justify-between items-start mb-4">
                                         <div className={`p-3 rounded-full ${color.light} ${color.text} group-hover:${color.bg} group-hover:text-white transition-colors shadow-sm`}>
-                                            <span className="material-symbols-outlined text-[24px]">
-                                                {wallet.type === 'CASH' ? 'wallet' : wallet.type === 'BANK' ? 'account_balance' : 'account_balance_wallet'}
-                                            </span>
+                                            {wallet.type === 'CASH' ? <Wallet size={24} /> : wallet.type === 'BANK' ? <Landmark size={24} /> : <CreditCard size={24} />}
                                         </div>
                                         <div onClick={(e) => e.stopPropagation()}>
                                             <WalletActionsMenu wallet={wallet} />

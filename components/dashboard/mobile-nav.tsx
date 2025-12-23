@@ -2,13 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Wallet, FileText, PiggyBank, Settings, LucideIcon } from 'lucide-react';
 
-const sidebarItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { href: '/wallets', label: 'Wallets', icon: 'account_balance_wallet' },
-    { href: '/transactions', label: 'Transactions', icon: 'receipt_long' },
-    { href: '/budget', label: 'Budget', icon: 'donut_small' }, // Mapped Reports to Budget
-    { href: '/settings', label: 'Settings', icon: 'settings' },
+interface NavItem {
+    href: string;
+    label: string;
+    icon: LucideIcon;
+}
+
+const sidebarItems: NavItem[] = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/wallets', label: 'Wallets', icon: Wallet },
+    { href: '/transactions', label: 'Transactions', icon: FileText },
+    { href: '/budget', label: 'Budget', icon: PiggyBank },
+    { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function MobileNav() {
@@ -19,6 +26,7 @@ export function MobileNav() {
             <nav className="flex h-full items-center justify-around px-2">
                 {sidebarItems.map((item) => {
                     const isActive = pathname === item.href;
+                    const IconComponent = item.icon;
                     return (
                         <Link
                             key={item.href}
@@ -26,12 +34,11 @@ export function MobileNav() {
                             className={`flex flex-col items-center justify-center gap-0.5 w-16 h-full transition-colors ${isActive ? 'text-primary' : 'text-slate-400 hover:text-slate-600'
                                 }`}
                         >
-                            <span
-                                className={`material-symbols-outlined text-[24px] ${isActive ? 'font-variation-filled' : ''}`}
-                                style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
-                            >
-                                {item.icon}
-                            </span>
+                            <IconComponent
+                                size={24}
+                                strokeWidth={isActive ? 2.5 : 2}
+                                fill={isActive ? 'currentColor' : 'none'}
+                            />
                             <span className="text-[10px] font-medium truncate max-w-full">
                                 {item.label}
                             </span>
@@ -42,3 +49,4 @@ export function MobileNav() {
         </div>
     );
 }
+

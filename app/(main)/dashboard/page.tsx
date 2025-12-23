@@ -11,6 +11,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
 import { useSyncState } from '@/components/providers/sync-provider';
+import { User, ArrowRight, Briefcase, ShoppingCart, Landmark, TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -86,7 +87,7 @@ export default function DashboardPage() {
                             {user?.user_metadata?.avatar_url ? (
                                 <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="material-symbols-outlined text-slate-400">person</span>
+                                <User size={20} className="text-slate-400" />
                             )}
                         </Link>
                     </div>
@@ -112,7 +113,7 @@ export default function DashboardPage() {
                                 <h2 className="text-slate-800 text-lg font-bold">Recent Transactions</h2>
                                 <Link href="/transactions" className="text-sm font-semibold text-primary hover:text-blue-700 transition-colors flex items-center gap-1">
                                     View All
-                                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
                             <div className="flex flex-col gap-4">
@@ -139,9 +140,7 @@ export default function DashboardPage() {
                                             <div key={t.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/50 border border-transparent hover:border-white/50 transition-all cursor-pointer group">
                                                 <div className="flex items-center gap-4">
                                                     <div className={`size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:${isIncome ? 'bg-green-600' : 'bg-primary'} group-hover:text-white transition-colors shadow-sm`}>
-                                                        <span className="material-symbols-outlined text-[20px]">
-                                                            {isIncome ? 'work' : 'shopping_cart'}
-                                                        </span>
+                                                        {isIncome ? <Briefcase size={20} /> : <ShoppingCart size={20} />}
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="text-slate-800 text-sm font-bold">{category?.name || t.categoryName || 'Uncategorized'}</span>
@@ -177,7 +176,7 @@ export default function DashboardPage() {
                                 <div className="absolute right-[-20px] top-[-20px] bg-primary/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
                                 <div className="relative z-10 flex flex-col gap-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="p-2 bg-primary/10 rounded-lg text-primary material-symbols-outlined text-[20px]">account_balance</span>
+                                        <span className="p-2 bg-primary/10 rounded-lg text-primary"><Landmark size={20} /></span>
                                         <p className="text-slate-500 text-sm font-medium">Total Balance</p>
                                     </div>
                                     {isLoadingWallets ? (
@@ -195,7 +194,7 @@ export default function DashboardPage() {
                             {/* Income */}
                             <div className="order-6 lg:order-none glass-panel p-6 rounded-2xl flex flex-col gap-1 bg-white/60">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="p-2 bg-green-500/10 rounded-lg text-green-600 material-symbols-outlined text-[20px]">trending_up</span>
+                                    <span className="p-2 bg-green-500/10 rounded-lg text-green-600"><TrendingUp size={20} /></span>
                                     <p className="text-slate-500 text-sm font-medium">Income (Month)</p>
                                 </div>
                                 {isLoadingTransactions ? (
@@ -209,7 +208,7 @@ export default function DashboardPage() {
                             {/* Expense */}
                             <div className="order-7 lg:order-none glass-panel p-6 rounded-2xl flex flex-col gap-1 bg-white/60">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="p-2 bg-red-500/10 rounded-lg text-red-500 material-symbols-outlined text-[20px]">trending_down</span>
+                                    <span className="p-2 bg-red-500/10 rounded-lg text-red-500"><TrendingDown size={20} /></span>
                                     <p className="text-slate-500 text-sm font-medium">Expense (Month)</p>
                                 </div>
                                 {isLoadingTransactions ? (

@@ -44,8 +44,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+        {/* Removed Google Fonts CDN links - they fail offline */}
+        {/* Using next/font for bundled fonts and Lucide icons for offline support */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background-light font-display`}
