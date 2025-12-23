@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# dompetku
+
+A simple and modern personal finance tracker.
+
+Dompetku helps you track your income and expenses easily. You can use it directly as a **Guest** (data saved on your device) or **Sign Up** to sync your data across devices.
+
+It is also a **Progressive Web App (PWA)**, so you can install it on your phone and use it offline.
+
+## Features
+
+-   **Track Money**: Record income and expenses quickly.
+-   **Wallets**: Manage cash, bank accounts, and e-wallets in one place.
+-   **Budgets**: Set monthly limits to keep your spending in check.
+-   **Guest Mode**: Try the app immediately without creating an account.
+-   **CSV Export**: Download your transaction history.
+-   **Digital Menu**: (Wait, this was a previous project context, removed).
+-   **Installable**: specific design for iOS and Android (PWA).
+
+## Tech Stack
+
+This project is built with:
+
+-   **Framework**: Next.js 15 (App Router)
+-   **Database**: Supabase (PostgreSQL)
+-   **ORM**: Drizzle ORM
+-   **Styling**: Tailwind CSS & Shadcn UI
+-   **State Management**: React Query
 
 ## Getting Started
 
-First, run the development server:
+1.  **Clone the repository**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    ```bash
+    git clone https://github.com/vicusgod/dompetku.git
+    cd dompetku
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2.  **Install dependencies**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    ```bash
+    npm install
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3.  **Setup Environment Variables**
 
-## Learn More
+    Create a `.env.local` file and add your Supabase credentials:
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    DATABASE_URL=your_postgres_connection_string
+    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4.  **Run the development server**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    ```bash
+    npm run dev
+    ```
 
-## Deploy on Vercel
+    Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is open source. Feel free to contribute!
