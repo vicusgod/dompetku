@@ -8,7 +8,9 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    qualities: [75, 100],
+  },
 };
 
 export default withPWA(nextConfig);

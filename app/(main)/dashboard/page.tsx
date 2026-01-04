@@ -11,9 +11,36 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
+import { Transaction, Wallet, Category } from '@/types';
+import { User } from '@supabase/supabase-js';
+
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import {
+    Search,
+    User as UserIcon,
+    ArrowRight,
+    ArrowUpRight,
+    ArrowDownRight,
+    Briefcase,
+    ShoppingCart,
+    Landmark,
+    TrendingUp,
+    TrendingDown
+} from 'lucide-react';
 
 export default function DashboardPage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const router = useRouter();
+
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const searchValue = formData.get('search') as string;
+        if (searchValue?.trim()) {
+            router.push(`/transactions?search=${encodeURIComponent(searchValue)}`);
+        }
+    };
 
     useEffect(() => {
         const supabase = createClient();
@@ -30,34 +57,68 @@ export default function DashboardPage() {
 
     // Calculate stats from fetched data
     const stats = useMemo(() => {
-        const balance = wallets.reduce((acc: number, w: any) => acc + parseFloat(w.balance || 0), 0);
+        const balance = wallets.reduce((acc: number, w: Wallet) => acc + (w.balance || 0), 0);
 
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const thisMonthTransactions = transactions.filter((t: any) => new Date(t.date) >= startOfMonth);
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
+        const thisMonthTransactions = transactions.filter((t: Transaction) => new Date(t.date) >= startOfMonth);
+        const lastMonthTransactions = transactions.filter((t: Transaction) => {
+            const d = new Date(t.date);
+            return d >= startOfLastMonth && d <= endOfLastMonth;
+        });
+
+        // Current Month Stats
         const income = thisMonthTransactions
-            .filter((t: any) => t.type === 'INCOME')
-            .reduce((acc: number, t: any) => acc + parseFloat(t.amount || 0), 0);
+            .filter((t: Transaction) => t.type === 'INCOME')
+            .reduce((acc: number, t: Transaction) => acc + (t.amount || 0), 0);
 
         const expense = thisMonthTransactions
-            .filter((t: any) => t.type === 'EXPENSE')
-            .reduce((acc: number, t: any) => acc + parseFloat(t.amount || 0), 0);
+            .filter((t: Transaction) => t.type === 'EXPENSE')
+            .reduce((acc: number, t: Transaction) => acc + (t.amount || 0), 0);
+
+        // Last Month Stats
+        const lastMonthIncome = lastMonthTransactions
+            .filter((t: Transaction) => t.type === 'INCOME')
+            .reduce((acc: number, t: Transaction) => acc + (t.amount || 0), 0);
+
+        const lastMonthExpense = lastMonthTransactions
+            .filter((t: Transaction) => t.type === 'EXPENSE')
+            .reduce((acc: number, t: Transaction) => acc + (t.amount || 0), 0);
+
+        // Calculate Percentages
+        const calculateChange = (current: number, previous: number) => {
+            if (previous === 0) return current > 0 ? 100 : 0;
+            return ((current - previous) / previous) * 100;
+        };
+
+        const incomeChange = calculateChange(income, lastMonthIncome);
+        const expenseChange = calculateChange(expense, lastMonthExpense);
+
+        // Total Balance Change (Approximation based on net income difference? 
+        // Or we need historical balance snapshots which we don't have. 
+        // We can approximate "Net Change this month" vs "Net Change last month")
+        // For now, let's just show Net Savings Change
+        const netSavings = income - expense;
+        const lastNetSavings = lastMonthIncome - lastMonthExpense;
+        const savingsChange = calculateChange(netSavings, lastNetSavings);
 
         const recentTransactions = transactions.slice(0, 5);
 
         // Chart data: group expenses by category
         const expensesByCategory: Record<string, number> = {};
         thisMonthTransactions
-            .filter((t: any) => t.type === 'EXPENSE')
-            .forEach((t: any) => {
-                const cat = categories.find((c: any) => c.id === t.categoryId);
+            .filter((t: Transaction) => t.type === 'EXPENSE')
+            .forEach((t: Transaction) => {
+                const cat = categories.find((c: Category) => c.id === t.categoryId);
                 const catName = cat?.name || 'Other';
-                expensesByCategory[catName] = (expensesByCategory[catName] || 0) + parseFloat(t.amount || 0);
+                expensesByCategory[catName] = (expensesByCategory[catName] || 0) + (t.amount || 0);
             });
         const chartData = Object.entries(expensesByCategory).map(([name, value]) => ({ name, value }));
 
-        return { balance, income, expense, recentTransactions, chartData };
+        return { balance, income, expense, incomeChange, expenseChange, savingsChange, recentTransactions, chartData };
     }, [wallets, transactions, categories]);
 
     // Settings from hook
@@ -96,19 +157,27 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex justify-center">
-                        <label className="hidden md:flex flex-col w-full max-w-[320px]">
+                        <form onSubmit={handleSearch} className="hidden md:flex flex-col w-full max-w-[320px]">
                             <div className="flex w-full items-center rounded-xl h-10 bg-white border border-gray-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all shadow-sm">
-                                <input className="w-full bg-transparent border-none text-slate-700 text-sm placeholder:text-slate-400 focus:ring-0 px-4 h-full outline-none text-center" placeholder="Search transactions..." />
+                                <Search className="text-slate-400 ml-3 size-5" />
+                                <input name="search" className="w-full bg-transparent border-none text-slate-700 text-sm placeholder:text-slate-400 focus:ring-0 px-2 h-full outline-none" placeholder="Search transactions..." />
                             </div>
-                        </label>
+                        </form>
                     </div>
 
                     <div className="flex items-center gap-4 justify-end">
                         <Link href="/settings" className="size-10 rounded-full bg-slate-200 border-2 border-white shadow-sm flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/20 transition-all">
                             {user?.user_metadata?.avatar_url ? (
-                                <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                <Image
+                                    src={user.user_metadata.avatar_url}
+                                    alt="Profile"
+                                    width={40}
+                                    height={40}
+                                    className="w-full h-full object-cover"
+                                    unoptimized
+                                />
                             ) : (
-                                <span className="material-symbols-outlined text-slate-400">person</span>
+                                <UserIcon className="text-slate-400 size-6" />
                             )}
                         </Link>
                     </div>
@@ -136,20 +205,18 @@ export default function DashboardPage() {
                                 <h2 className="text-slate-800 text-lg font-bold">Recent Transactions</h2>
                                 <Link href="/transactions" className="text-sm font-semibold text-primary hover:text-blue-700 transition-colors flex items-center gap-1">
                                     View All
-                                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                    <ArrowRight className="size-4" />
                                 </Link>
                             </div>
                             <div className="flex flex-col gap-4">
-                                {stats.recentTransactions && stats.recentTransactions.length > 0 ? stats.recentTransactions.map((t: any) => {
+                                {stats.recentTransactions && stats.recentTransactions.length > 0 ? stats.recentTransactions.map((t: Transaction) => {
                                     const isIncome = t.type === 'INCOME';
-                                    const category = categories.find((c: any) => c.id === t.categoryId);
+                                    const category = categories.find((c: Category) => c.id === t.categoryId);
                                     return (
                                         <div key={t.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/50 border border-transparent hover:border-white/50 transition-all cursor-pointer group">
                                             <div className="flex items-center gap-4">
                                                 <div className={`size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:${isIncome ? 'bg-green-600' : 'bg-primary'} group-hover:text-white transition-colors shadow-sm`}>
-                                                    <span className="material-symbols-outlined text-[20px]">
-                                                        {isIncome ? 'work' : 'shopping_cart'}
-                                                    </span>
+                                                    {isIncome ? <Briefcase className="size-5" /> : <ShoppingCart className="size-5" />}
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-slate-800 text-sm font-bold">{category?.name || t.categoryName || 'Uncategorized'}</span>
@@ -157,7 +224,7 @@ export default function DashboardPage() {
                                                 </div>
                                             </div>
                                             <span className={`${isIncome ? 'text-green-600' : 'text-slate-800'} font-medium text-sm transition-all duration-300 ${balanceStyle}`}>
-                                                {isIncome ? '+' : '-'}{formatCurrency(parseFloat(t.amount), currency)}
+                                                {isIncome ? '+' : '-'}{formatCurrency(t.amount, currency)}
                                             </span>
                                         </div>
                                     );
@@ -181,13 +248,17 @@ export default function DashboardPage() {
                                 <div className="absolute right-[-20px] top-[-20px] bg-primary/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
                                 <div className="relative z-10 flex flex-col gap-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="p-2 bg-primary/10 rounded-lg text-primary material-symbols-outlined text-[20px]">account_balance</span>
+                                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                                            <Landmark className="size-5" />
+                                        </div>
                                         <p className="text-slate-500 text-sm font-medium">Total Balance</p>
                                     </div>
                                     <p className={`text-slate-800 text-3xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.balance, currency)}</p>
                                     <div className="flex items-center gap-1 mt-2">
-                                        <span className="bg-green-500/10 text-green-600 text-xs font-bold px-2 py-0.5 rounded-full">+5.2%</span>
-                                        <p className="text-slate-400 text-xs">from last month</p>
+                                        <span className={`${stats.savingsChange >= 0 ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'} text-xs font-bold px-2 py-0.5 rounded-full`}>
+                                            {stats.savingsChange > 0 ? '+' : ''}{stats.savingsChange.toFixed(1)}%
+                                        </span>
+                                        <p className="text-slate-400 text-xs">savings vs last month</p>
                                     </div>
                                 </div>
                             </div>
@@ -195,21 +266,29 @@ export default function DashboardPage() {
                             {/* Income (Mobile: Order 6) */}
                             <div className="order-6 lg:order-none glass-panel p-6 rounded-2xl flex flex-col gap-1 bg-white/60">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="p-2 bg-green-500/10 rounded-lg text-green-600 material-symbols-outlined text-[20px]">trending_up</span>
+                                    <div className="p-2 bg-green-500/10 rounded-lg text-green-600">
+                                        <TrendingUp className="size-5" />
+                                    </div>
                                     <p className="text-slate-500 text-sm font-medium">Income (Month)</p>
                                 </div>
                                 <p className={`text-slate-800 text-2xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.income, currency)}</p>
-                                <p className="text-green-600 text-sm mt-1 font-medium">+12% vs last month</p>
+                                <p className={`${stats.incomeChange >= 0 ? 'text-green-600' : 'text-red-500'} text-sm mt-1 font-medium`}>
+                                    {stats.incomeChange > 0 ? '+' : ''}{stats.incomeChange.toFixed(1)}% vs last month
+                                </p>
                             </div>
 
                             {/* Expense (Mobile: Order 7) */}
                             <div className="order-7 lg:order-none glass-panel p-6 rounded-2xl flex flex-col gap-1 bg-white/60">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="p-2 bg-red-500/10 rounded-lg text-red-500 material-symbols-outlined text-[20px]">trending_down</span>
+                                    <div className="p-2 bg-red-500/10 rounded-lg text-red-500">
+                                        <TrendingDown className="size-5" />
+                                    </div>
                                     <p className="text-slate-500 text-sm font-medium">Expense (Month)</p>
                                 </div>
                                 <p className={`text-slate-800 text-2xl font-bold tracking-tight transition-all duration-300 ${balanceStyle}`}>{formatCurrency(stats.expense, currency)}</p>
-                                <p className="text-red-500 text-sm mt-1 font-medium">+2% vs last month</p>
+                                <p className={`${stats.expenseChange >= 0 ? 'text-red-500' : 'text-green-600'} text-sm mt-1 font-medium`}>
+                                    {stats.expenseChange > 0 ? '+' : ''}{stats.expenseChange.toFixed(1)}% vs last month
+                                </p>
                             </div>
                         </section>
                     </div>

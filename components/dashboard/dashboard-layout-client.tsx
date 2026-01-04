@@ -19,12 +19,21 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from '@/components/providers/auth-provider';
 
+import {
+    LayoutDashboard,
+    Wallet,
+    ReceiptText,
+    PieChart,
+    Settings,
+    LogOut
+} from 'lucide-react';
+
 const sidebarItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { href: '/wallets', label: 'Wallets', icon: 'account_balance_wallet' },
-    { href: '/transactions', label: 'Transactions', icon: 'receipt_long' },
-    { href: '/budget', label: 'Budget', icon: 'donut_small' },
-    { href: '/settings', label: 'Settings', icon: 'settings' },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/wallets', label: 'Wallets', icon: Wallet },
+    { href: '/transactions', label: 'Transactions', icon: ReceiptText },
+    { href: '/budget', label: 'Budget', icon: PieChart },
+    { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
@@ -75,13 +84,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                                             : 'hover:bg-black/5 text-slate-500 hover:text-slate-900'
                                             }`}
                                     >
-                                        <span
-                                            className={`material-symbols-outlined ${isActive ? 'text-white' : 'text-current'
-                                                }`}
-                                            style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
-                                        >
-                                            {item.icon}
-                                        </span>
+                                        <item.icon className={`size-[22px] ${isActive ? 'text-white' : 'text-current'}`} />
                                         <span className={`text-sm ${isActive ? 'text-white font-semibold' : 'font-medium'}`}>
                                             {item.label}
                                         </span>
@@ -94,7 +97,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                         <AlertDialogTrigger asChild>
                             <div className="group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 transition-all cursor-pointer text-slate-500 hover:text-slate-900 mt-auto">
                                 <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-red-50 transition-colors">
-                                    <span className="material-symbols-outlined text-slate-500 group-hover:text-red-500 transition-colors text-[20px]">logout</span>
+                                    <LogOut className="size-5 text-slate-500 group-hover:text-red-500 transition-colors" />
                                 </div>
                                 <span className="text-sm font-medium group-hover:text-red-600 transition-colors">Sign Out</span>
                             </div>

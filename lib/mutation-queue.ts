@@ -14,6 +14,7 @@ export interface MutationItem {
     | 'UPDATE_CATEGORY'
     | 'DELETE_CATEGORY'
     | 'CREATE_BUDGET'
+    | 'UPDATE_BUDGET'
     | 'DELETE_BUDGET';
     payload: any;
     timestamp: number;

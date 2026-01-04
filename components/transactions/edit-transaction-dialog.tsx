@@ -32,29 +32,27 @@ import { format } from 'date-fns';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { transactionSchema, TransactionFormValues } from '@/lib/validators';
-import { useQuery } from '@tanstack/react-query';
-import { getCategories } from '@/actions/categories';
+import { Transaction } from '@/types';
+import { useUpdateTransaction, useCategories } from '@/hooks/use-data';
 import { toast } from 'sonner';
-import { useUpdateTransaction } from '@/hooks/use-data';
+
 
 interface EditTransactionDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    transaction: any; // We'll type this properly ideally, but any for now to speed up
+    transaction: Transaction;
 }
 
 export function EditTransactionDialog({ open, onOpenChange, transaction }: EditTransactionDialogProps) {
     const [isPending, setIsPending] = useState(false);
 
-    const { data: categories = [] } = useQuery({
-        queryKey: ['categories'],
-        queryFn: async () => await getCategories(),
-    });
+    const { data: categories = [] } = useCategories();
 
     const form = useForm<TransactionFormValues>({
-        resolver: zodResolver(transactionSchema as any),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        resolver: zodResolver(transactionSchema) as any,
         defaultValues: {
-            amount: parseFloat(transaction.amount),
+            amount: transaction.amount,
             type: transaction.type,
             categoryId: transaction.categoryId || '', // handle null category
             date: new Date(transaction.date),
@@ -76,8 +74,8 @@ export function EditTransactionDialog({ open, onOpenChange, transaction }: EditT
             });
             toast.success('Transaction updated successfully');
             onOpenChange(false);
-        } catch (error: any) {
-            toast.error(error?.message || 'Something went wrong');
+        } catch (error) {
+            toast.error((error as Error)?.message || 'Something went wrong');
         } finally {
             setIsPending(false);
         }
@@ -141,7 +139,7 @@ export function EditTransactionDialog({ open, onOpenChange, transaction }: EditT
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {categories.filter((c: any) => c.type === form.watch('type')).map((category: any) => (
+                                            {categories.filter((c) => c.type === form.watch('type')).map((category) => (
                                                 <SelectItem key={category.id} value={category.id}>
                                                     {category.name}
                                                 </SelectItem>

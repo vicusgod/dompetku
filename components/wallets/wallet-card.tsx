@@ -5,6 +5,13 @@ import { formatCurrency } from '@/lib/utils';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { EditWalletDialog } from './edit-wallet-dialog';
+import {
+    Wallet as WalletIcon,
+    Landmark,
+    CreditCard,
+    History,
+    Edit2
+} from 'lucide-react';
 // Removed useDeleteWallet logic as it is moved to edit dialog
 
 interface WalletCardProps {
@@ -37,9 +44,7 @@ export function WalletCard({ wallet, index, settings }: WalletCardProps) {
             <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-3">
                     <div className={`h-10 w-10 rounded-xl ${style.light} flex items-center justify-center ${style.text}`}>
-                        <span className="material-symbols-outlined">
-                            {wallet.type === 'CASH' ? 'wallet' : wallet.type === 'BANK' ? 'account_balance' : 'account_balance_wallet'}
-                        </span>
+                        {wallet.type === 'CASH' ? <WalletIcon className="size-6" /> : wallet.type === 'BANK' ? <Landmark className="size-6" /> : <CreditCard className="size-6" />}
                     </div>
                     <div>
                         <h4 className="font-bold text-[#1A1A2E] leading-tight">{wallet.name}</h4>
@@ -54,12 +59,12 @@ export function WalletCard({ wallet, index, settings }: WalletCardProps) {
             </div>
             <div className="flex gap-3">
                 <Link href={`/transactions?walletId=${wallet.id}`} className="flex-1 py-2.5 rounded-xl border border-gray-100 bg-gray-50 text-xs font-bold text-[#1A1A2E] hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">history</span>
+                    <History className="size-[18px]" />
                     History
                 </Link>
                 <EditWalletDialog wallet={wallet} trigger={
                     <button className="flex-1 py-2.5 rounded-xl border border-gray-100 bg-gray-50 text-xs font-bold text-[#1A1A2E] hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                        <Edit2 className="size-[18px]" />
                         Edit
                     </button>
                 } />

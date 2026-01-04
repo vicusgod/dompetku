@@ -1,44 +1,13 @@
 // Local Storage Data Store
 // Supports both Guest Mode and Authenticated Offline Mode
 
-export interface LocalTransaction {
-    id: string; // UUID
-    amount: number;
-    type: 'INCOME' | 'EXPENSE';
-    categoryId: string;
-    walletId: string;
-    date: string; // ISO string
-    note?: string;
-    createdAt: string;
-}
+import { Transaction, Wallet, Category, Budget } from '@/types';
 
-export interface LocalWallet {
-    id: string; // UUID
-    name: string;
-    type: 'CASH' | 'BANK' | 'E_WALLET' | 'CREDIT_CARD';
-    balance: number;
-    order: number;
-    icon?: string;
-    userId?: string; // Optional for guest
-    createdAt: string;
-}
+export type LocalTransaction = Transaction;
+export type LocalWallet = Wallet;
+export type LocalCategory = Category;
+export type LocalBudget = Budget;
 
-export interface LocalCategory {
-    id: string; // UUID
-    name: string;
-    type: 'INCOME' | 'EXPENSE';
-    icon: string;
-    color?: string;
-    userId?: string; // Optional for guest
-}
-
-export interface LocalBudget {
-    id: string;
-    categoryId: string;
-    amount: number;
-    period: 'MONTHLY';
-    createdAt: string;
-}
 
 const GUEST_PREFIX = 'guest';
 
@@ -220,7 +189,7 @@ class LocalStore {
         this.setItem(keys.WALLETS, wallets);
     }
 
-    createWallet(wallet: Omit<LocalWallet, 'id' | 'createdAt'>) {
+    createWallet(wallet: Omit<LocalWallet, 'id' | 'createdAt' | 'order'>) {
         const keys = this.getKeys();
         const wallets = this.getWallets();
         const newWallet: LocalWallet = {
@@ -353,6 +322,16 @@ class LocalStore {
         budgets.push(newBudget);
         this.setItem(keys.BUDGETS, budgets);
         return newBudget;
+    }
+
+    updateBudget(id: string, data: Partial<Omit<LocalBudget, 'id' | 'createdAt'>>) {
+        const keys = this.getKeys();
+        const budgets = this.getItem<LocalBudget[]>(keys.BUDGETS, []);
+        const idx = budgets.findIndex(b => b.id === id);
+        if (idx !== -1) {
+            budgets[idx] = { ...budgets[idx], ...data };
+            this.setItem(keys.BUDGETS, budgets);
+        }
     }
 
     deleteBudget(id: string) {

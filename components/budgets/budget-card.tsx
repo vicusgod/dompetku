@@ -16,6 +16,13 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useSettings } from '@/components/providers/settings-provider';
+import {
+    Utensils,
+    Car,
+    ShoppingBag,
+    LayoutGrid,
+    Trash2
+} from 'lucide-react';
 
 interface BudgetCardProps {
     budget: any;
@@ -46,17 +53,20 @@ export function BudgetCard({ budget }: BudgetCardProps) {
     const settings = useSettings();
     const { currency } = settings;
 
+    const getIcon = (name: string = '') => {
+        const n = name.toLowerCase();
+        if (n.includes('food')) return <Utensils className="size-6" />;
+        if (n.includes('transport')) return <Car className="size-6" />;
+        if (n.includes('shop')) return <ShoppingBag className="size-6" />;
+        return <LayoutGrid className="size-6" />;
+    };
+
     return (
         <div className="glass-panel p-6 rounded-2xl flex flex-col gap-5 hover:shadow-lg transition-all group border border-white/60">
             <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
                     <div className={`size-12 rounded-2xl flex items-center justify-center text-xl shadow-sm ${isOverBudget ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-primary'}`}>
-                        <span className="material-symbols-outlined">
-                            {budget.categoryName?.toLowerCase().includes('food') ? 'restaurant' :
-                                budget.categoryName?.toLowerCase().includes('transport') ? 'directions_car' :
-                                    budget.categoryName?.toLowerCase().includes('shop') ? 'shopping_bag' :
-                                        'category'}
-                        </span>
+                        {getIcon(budget.categoryName)}
                     </div>
                     <div>
                         <h4 className="text-slate-800 font-bold text-lg">{budget.categoryName}</h4>
@@ -70,7 +80,7 @@ export function BudgetCard({ budget }: BudgetCardProps) {
                             className="text-slate-300 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-lg disabled:opacity-50"
                             disabled={isPending}
                         >
-                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                            <Trash2 className="size-5" />
                         </button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>

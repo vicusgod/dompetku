@@ -2,11 +2,20 @@
 
 import { useWallets, useTransactions } from '@/hooks/use-data';
 import { useSettings } from '@/components/providers/settings-provider';
-import { Button } from '@/components/ui/button';
 import { AddWalletDialog } from '@/components/wallets/add-wallet-dialog';
+import { Wallet, Transaction } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 import { WalletCard } from '@/components/wallets/wallet-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+    Plus,
+    Landmark,
+    TrendingUp,
+    PiggyBank,
+    CheckCircle,
+    CreditCard,
+    Info
+} from 'lucide-react';
 
 export default function WalletsPage() {
     const { data: wallets = [], isLoading: isLoadingWallets } = useWallets();
@@ -26,17 +35,17 @@ export default function WalletsPage() {
     const { currency, hideBalances } = settings;
     const balanceStyle = hideBalances ? "blur-md select-none" : "";
 
-    const totalBalance = wallets.reduce((acc: number, w: any) => acc + parseFloat(w.balance), 0);
+    const totalBalance = wallets.reduce((acc: number, w: Wallet) => acc + (w.balance), 0);
 
     // Calculate monthly spending (sum of all EXPENSE transactions this month)
     const monthlySpending = transactions
-        .filter((t: any) => t.type === 'EXPENSE')
-        .reduce((acc: number, t: any) => acc + (parseFloat(t.amount) || 0), 0);
+        .filter((t: Transaction) => t.type === 'EXPENSE')
+        .reduce((acc: number, t: Transaction) => acc + (t.amount || 0), 0);
 
     // Calculate monthly income (sum of all INCOME transactions this month)
     const monthlyIncome = transactions
-        .filter((t: any) => t.type === 'INCOME')
-        .reduce((acc: number, t: any) => acc + (parseFloat(t.amount) || 0), 0);
+        .filter((t: Transaction) => t.type === 'INCOME')
+        .reduce((acc: number, t: Transaction) => acc + (t.amount || 0), 0);
 
     // Total Savings = Net savings this month (income - expenses)
     const totalSavings = monthlyIncome - monthlySpending;
@@ -74,7 +83,7 @@ export default function WalletsPage() {
             {/* Wallets Grid */}
             <div className="flex flex-col gap-5 mt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {wallets.map((wallet: any, index: number) => (
+                    {wallets.map((wallet: Wallet, index: number) => (
                         <WalletCard
                             key={wallet.id}
                             wallet={wallet}
@@ -86,7 +95,7 @@ export default function WalletsPage() {
                     <div className="rounded-3xl p-6 border-2 border-dashed border-gray-300 hover:border-primary hover:bg-blue-50/30 transition-all duration-300 flex flex-col items-center justify-center gap-4 group min-h-[250px] cursor-pointer">
                         <div className="w-14 h-14 rounded-full bg-white shadow-sm group-hover:shadow-md group-hover:scale-110 flex items-center justify-center text-[#6E6E85] group-hover:text-primary transition-all duration-300">
                             <AddWalletDialog trigger={
-                                <span className="material-symbols-outlined text-2xl">add</span>
+                                <Plus className="size-8" />
                             } />
                         </div>
                         <div className="text-center">
@@ -105,14 +114,14 @@ export default function WalletsPage() {
                     <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                         <div className="flex items-center gap-2 text-[#6E6E85]">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <span className="material-symbols-outlined text-primary text-xl">account_balance</span>
+                                <Landmark className="text-primary size-5" />
                             </div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[11px] opacity-70">Total Balance</p>
                         </div>
                         <div>
                             <h3 className={`text-3xl font-extrabold text-[#1A1A2E] tracking-tight mb-1 transition-all duration-300 ${balanceStyle}`}>{formatCurrency(totalBalance, currency)}</h3>
                             <div className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-emerald-500 text-sm">trending_up</span>
+                                <TrendingUp className="text-emerald-500 size-4" />
                                 <span className="text-xs font-bold text-emerald-600">+12% vs last month</span>
                             </div>
                         </div>
@@ -125,14 +134,14 @@ export default function WalletsPage() {
                     <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                         <div className="flex items-center gap-2 text-[#6E6E85]">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <span className="material-symbols-outlined text-amber-500 text-xl">savings</span>
+                                <PiggyBank className="text-amber-500 size-5" />
                             </div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[11px] opacity-70">Total Savings</p>
                         </div>
                         <div>
                             <h3 className={`text-3xl font-extrabold text-[#1A1A2E] tracking-tight mb-1 transition-all duration-300 ${balanceStyle}`}>{formatCurrency(totalSavings, currency)}</h3>
                             <div className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-emerald-500 text-sm">check_circle</span>
+                                <CheckCircle className="text-emerald-500 size-4" />
                                 <span className="text-xs font-bold text-emerald-600">On track for goals</span>
                             </div>
                         </div>
@@ -145,14 +154,14 @@ export default function WalletsPage() {
                     <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                         <div className="flex items-center gap-2 text-[#6E6E85]">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <span className="material-symbols-outlined text-purple-500 text-xl">credit_card</span>
+                                <CreditCard className="text-purple-500 size-5" />
                             </div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[11px] opacity-70">Monthly Spending</p>
                         </div>
                         <div>
                             <h3 className={`text-3xl font-extrabold text-[#1A1A2E] tracking-tight mb-1 transition-all duration-300 ${balanceStyle}`}>{formatCurrency(monthlySpending, currency)}</h3>
                             <div className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-[#6E6E85] text-sm">info</span>
+                                <Info className="text-[#6E6E85] size-4" />
                                 <span className="text-xs font-bold text-[#6E6E85]">Based on all wallets</span>
                             </div>
                         </div>

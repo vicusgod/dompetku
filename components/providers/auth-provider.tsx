@@ -25,26 +25,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
 
     useEffect(() => {
+        const startTime = performance.now();
+        console.log('[Auth] Starting auth check...');
+
         // Check if guest cookie exists
         const guestCookie = Cookies.get(GUEST_COOKIE);
         if (guestCookie === 'true') {
             setIsGuest(true);
             LocalDataStore.initialize(); // Initialize local data for guest
+            console.log('[Auth] Guest mode detected');
         }
 
-        // Check Supabase Auth
+        // Check Supabase Auth - use getSession first (faster, from local storage)
+        // then validate with getUser if needed
         const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-            LocalDataStore.setUserId(user?.id || null); // Set ID
-            setIsLoading(false);
+            try {
+                // Step 1: Fast check from local session (no network call)
+                const sessionStart = performance.now();
+                const { data: { session } } = await supabase.auth.getSession();
+                console.log(`[Auth] getSession took ${(performance.now() - sessionStart).toFixed(0)}ms`);
+
+                if (session?.user) {
+                    // We have a cached session, use it immediately
+                    setUser(session.user);
+                    LocalDataStore.setUserId(session.user.id);
+                    setIsLoading(false);
+                    console.log(`[Auth] User loaded from session in ${(performance.now() - startTime).toFixed(0)}ms`);
+
+                    // Optional: Validate session in background (non-blocking)
+                    supabase.auth.getUser().then(({ data: { user: validatedUser } }) => {
+                        if (validatedUser) {
+                            setUser(validatedUser);
+                        } else {
+                            // Session invalid, clear user
+                            setUser(null);
+                            LocalDataStore.setUserId(null);
+                        }
+                    });
+                } else {
+                    // No session, try getUser as fallback
+                    const userStart = performance.now();
+                    const { data: { user } } = await supabase.auth.getUser();
+                    console.log(`[Auth] getUser took ${(performance.now() - userStart).toFixed(0)}ms`);
+                    setUser(user);
+                    LocalDataStore.setUserId(user?.id || null);
+                    setIsLoading(false);
+                    console.log(`[Auth] Auth check complete in ${(performance.now() - startTime).toFixed(0)}ms`);
+                }
+            } catch (error) {
+                console.error('[Auth] Error:', error);
+                setIsLoading(false);
+            }
         };
         checkUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             const newUser = session?.user ?? null;
             setUser(newUser);
-            LocalDataStore.setUserId(newUser?.id || null); // Set ID
+            LocalDataStore.setUserId(newUser?.id || null);
             // If logged in via Supabase, ensure Guest mode is off?
             if (newUser) {
                 // If we were in guest mode, maybe we should merge data? 

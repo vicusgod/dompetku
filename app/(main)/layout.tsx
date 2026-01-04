@@ -1,6 +1,7 @@
 import { DashboardLayoutClient } from '@/components/dashboard/dashboard-layout-client';
 import { getSettings } from '@/actions/settings';
 import { SettingsProvider } from '@/components/providers/settings-provider';
+import { SyncProvider } from '@/components/providers/sync-provider';
 
 export default async function DashboardLayout({
     children,
@@ -11,9 +12,11 @@ export default async function DashboardLayout({
 
     return (
         <SettingsProvider initialSettings={settings}>
-            <DashboardLayoutClient>
-                {children}
-            </DashboardLayoutClient>
+            <SyncProvider>
+                <DashboardLayoutClient>
+                    {children}
+                </DashboardLayoutClient>
+            </SyncProvider>
         </SettingsProvider>
     );
 }

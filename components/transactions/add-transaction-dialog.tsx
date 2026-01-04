@@ -79,7 +79,7 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
     // Set default wallet
     useEffect(() => {
         if (wallets.length > 0 && !form.getValues('walletId')) {
-            const defaultWallet = wallets.find((w: any) => w.type === 'CASH') || wallets[0];
+            const defaultWallet = wallets.find((w) => w.type === 'CASH') || wallets[0];
             if (defaultWallet) {
                 form.setValue('walletId', defaultWallet.id);
             }
@@ -224,7 +224,7 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {wallets.map((wallet: any) => (
+                                                {wallets.map((wallet) => (
                                                     <SelectItem key={wallet.id} value={wallet.id}>
                                                         {wallet.name}
                                                     </SelectItem>
@@ -249,7 +249,7 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {categories.filter((c: any) => c.type === type).map((category: any) => (
+                                                {categories.filter((c) => c.type === type).map((category) => (
                                                     <SelectItem key={category.id} value={category.id}>
                                                         {category.name}
                                                     </SelectItem>

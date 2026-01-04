@@ -18,7 +18,7 @@
 }
 
 @theme {
-  --font-display: Manrope, sans-serif;
+  --font-display: var(--font-manrope), sans-serif;
 
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));

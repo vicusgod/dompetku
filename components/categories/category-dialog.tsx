@@ -28,12 +28,33 @@ interface CategoryDialogProps {
     onOpenChange?: (open: boolean) => void;
 }
 
-const ICONS = [
-    'shopping_cart', 'restaurant', 'commute', 'payments',
-    'school', 'medical_services', 'flight', 'savings',
-    'work', 'home', 'pets', 'fitness_center',
-    'movie', 'local_cafe', 'gift', 'build'
-];
+import {
+    ShoppingCart, Utensils, Car, Banknote,
+    GraduationCap, Stethoscope, Plane, PiggyBank,
+    Briefcase, Home, PawPrint, Dumbbell,
+    Film, Coffee, Gift, Wrench, LayoutGrid
+} from 'lucide-react';
+
+export const categoryIcons: Record<string, any> = {
+    'shopping_cart': ShoppingCart,
+    'restaurant': Utensils,
+    'commute': Car,
+    'payments': Banknote,
+    'school': GraduationCap,
+    'medical_services': Stethoscope,
+    'flight': Plane,
+    'savings': PiggyBank,
+    'work': Briefcase,
+    'home': Home,
+    'pets': PawPrint,
+    'fitness_center': Dumbbell,
+    'movie': Film,
+    'local_cafe': Coffee,
+    'gift': Gift,
+    'build': Wrench
+};
+
+const ICONS = Object.keys(categoryIcons);
 
 export function CategoryDialog({ trigger, category, open: controlledOpen, onOpenChange: setControlledOpen }: CategoryDialogProps) {
     const [internalOpen, setInternalOpen] = useState(false);
@@ -118,7 +139,10 @@ export function CategoryDialog({ trigger, category, open: controlledOpen, onOpen
                                         defaultChecked={category?.icon === iconName || (!category && iconName === 'shopping_cart')}
                                     />
                                     <div className="size-8 rounded-md flex items-center justify-center border border-transparent peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary hover:bg-slate-50 transition-all">
-                                        <span className="material-symbols-outlined text-[18px]">{iconName}</span>
+                                        {(() => {
+                                            const Icon = categoryIcons[iconName] || LayoutGrid;
+                                            return <Icon className="size-[18px]" />;
+                                        })()}
                                     </div>
                                 </label>
                             ))}

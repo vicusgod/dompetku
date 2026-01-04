@@ -10,6 +10,7 @@ export async function getTransactions(filters?: {
     from?: string; // ISO Date YYYY-MM-DD
     to?: string;   // ISO Date YYYY-MM-DD
     walletId?: string;
+    limit?: number; // Limit results for sync optimization
 }) {
     const supabase = await createClient();
     const {
@@ -39,7 +40,8 @@ export async function getTransactions(filters?: {
         .from(transactions)
         .leftJoin(categories, eq(transactions.categoryId, categories.id))
         .where(whereClause)
-        .orderBy(desc(transactions.date));
+        .orderBy(desc(transactions.date))
+        .limit(filters?.limit ?? 1000);
 
     // In-memory filtering
     let filtered = result;

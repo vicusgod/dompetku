@@ -2,58 +2,131 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { syncEngine } from '@/lib/sync-engine';
-import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { createClient } from '@/lib/supabase/client';
 
 export function useSync() {
-    const { user, isGuest } = useAuth();
+    // Use local state for user instead of context to avoid propagation issues
+    const [userId, setUserId] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSynced, setLastSynced] = useState<Date | null>(null);
     const queryClient = useQueryClient();
+    const supabaseRef = useRef(createClient());
+
+    // DEBUG: Log every render
+    console.log('[useSync] Render - userId:', userId);
 
     const isSyncingRef = useRef(false);
+    const userIdRef = useRef<string | null>(null);
+    userIdRef.current = userId;
+
+    // Listen for auth changes directly from Supabase
+    useEffect(() => {
+        console.log('[useSync] Setting up auth listener');
+        const supabase = supabaseRef.current;
+
+        // Check initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            const id = session?.user?.id ?? null;
+            console.log('[useSync] Initial session user:', id);
+            setUserId(id);
+        });
+
+        // Subscribe to auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            const id = session?.user?.id ?? null;
+            console.log('[useSync] Auth state changed - user:', id);
+            setUserId(id);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
 
     const runSync = useCallback(async () => {
-        if (!user || isGuest) return;
+        const currentUserId = userIdRef.current;
+        if (!currentUserId) return;
         if (isSyncingRef.current) return;
 
         isSyncingRef.current = true;
         setIsSyncing(true);
         try {
-            // Push local changes
-            await syncEngine.push(user.id);
-
-            // Pull remote changes
-            await syncEngine.pull(user.id);
-
+            await syncEngine.push(currentUserId);
+            await syncEngine.pull(currentUserId);
             setLastSynced(new Date());
             console.log('Sync completed successfully');
         } catch (error) {
             console.error('Sync failed:', error);
-            // Don't toast for background sync failures usually, unless critical
         } finally {
             setIsSyncing(false);
             isSyncingRef.current = false;
         }
-    }, [user, isGuest]); // Removed isSyncing dependency
+    }, []);
 
+    // Debounced sync for Realtime events
+    const debouncedSyncRef = useRef<NodeJS.Timeout | null>(null);
+    const runSyncRef = useRef(runSync);
+    runSyncRef.current = runSync;
+
+    const triggerDebouncedSync = useCallback(() => {
+        if (debouncedSyncRef.current) {
+            clearTimeout(debouncedSyncRef.current);
+        }
+        debouncedSyncRef.current = setTimeout(() => {
+            console.log('Debounced sync triggered');
+            runSyncRef.current();
+        }, 2000);
+    }, []);
+
+    // Subscribe to SyncEngine updates
     useEffect(() => {
-        // Subscribe to SyncEngine updates to invalidate queries
         const unsubscribe = syncEngine.subscribe(() => {
             console.log('SyncEngine notified update. Invalidating queries...');
             queryClient.invalidateQueries();
-            // We can be more specific: ['transactions'], ['wallets'], etc.
-            // But invalidating all is safer for now.
         });
-
-        return () => {
-            unsubscribe();
-        };
+        return () => unsubscribe();
     }, [queryClient]);
 
+    // Realtime Subscription - triggers when userId is set
     useEffect(() => {
-        if (!user || isGuest) return;
+        if (!userId) {
+            console.log('[useSync] No userId, skipping realtime setup');
+            return;
+        }
+
+        console.log('[useSync] Setting up Realtime subscription for:', userId);
+        const supabase = supabaseRef.current;
+
+        const channel = supabase.channel('db-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${userId}` },
+                () => triggerDebouncedSync()
+            )
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'wallets', filter: `user_id=eq.${userId}` },
+                () => triggerDebouncedSync()
+            )
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'categories', filter: `user_id=eq.${userId}` },
+                () => triggerDebouncedSync()
+            )
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'budgets', filter: `user_id=eq.${userId}` },
+                () => triggerDebouncedSync()
+            )
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('Realtime subscription active');
+                }
+            });
+
+        return () => {
+            console.log('Cleaning up Realtime subscription');
+            supabase.removeChannel(channel);
+        };
+    }, [userId, triggerDebouncedSync]);
+
+    // Online/Offline handlers
+    useEffect(() => {
+        if (!userId) return;
 
         const handleOnline = () => {
             console.log('App is back online. Syncing...');
@@ -68,16 +141,11 @@ export function useSync() {
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
 
-        // Initial sync on mount
-        if (navigator.onLine) {
-            runSync();
-        }
-
         return () => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
         };
-    }, [user, isGuest, runSync]);
+    }, [userId, runSync]);
 
     return {
         isSyncing,

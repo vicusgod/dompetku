@@ -1,12 +1,14 @@
 import { LocalDataStore } from './local-store';
 import { MutationQueue } from './mutation-queue';
 import { createTransaction, deleteTransaction, updateTransaction } from '@/actions/transactions';
-import { createWallet, deleteWallet, updateWallet, getWallets } from '@/actions/wallets';
-import { createCategory, deleteCategory, updateCategory, getCategories } from '@/actions/categories';
-import { createBudget, deleteBudget, getBudgets } from '@/actions/budgets';
-import { getTransactions } from '@/actions/transactions/get-transactions';
+import { createWallet, deleteWallet, updateWallet } from '@/actions/wallets';
+import { createCategory, deleteCategory, updateCategory } from '@/actions/categories';
+import { createBudget, deleteBudget, updateBudget } from '@/actions/budgets';
+import { getBatchSyncData } from '@/actions/sync/batch-get';
 import { seedDefaultWallet } from '@/actions/wallets/seed';
 import { seedDefaultCategories } from '@/actions/categories/seed';
+import { getWallets } from '@/actions/wallets';
+import { getCategories } from '@/actions/categories';
 import { toast } from 'sonner';
 
 class SyncEngine {
@@ -32,18 +34,13 @@ class SyncEngine {
             // Helper to ensure dates are strings
             const serialize = (obj: any) => JSON.parse(JSON.stringify(obj));
 
-            // Parallel fetch
-            const [
-                serverTransactions,
-                serverWallets,
-                serverCategories,
-                serverBudgets
-            ] = await Promise.all([
-                getTransactions(),
-                getWallets(),
-                getCategories(),
-                getBudgets()
-            ]);
+            // Single batch fetch with optimized limits (1x auth call instead of 4x)
+            const {
+                transactions: serverTransactions,
+                wallets: serverWallets,
+                categories: serverCategories,
+                budgets: serverBudgets
+            } = await getBatchSyncData({ transactionLimit: 500 });
 
             // Auto-Seeding (Self-Repair)
             // If the user has NO wallets and NO categories (likely a fresh account where seed failed, or data was wiped),
@@ -168,15 +165,18 @@ class SyncEngine {
                     case 'CREATE_CATEGORY':
                         result = await createCategory(item.payload);
                         break;
-                    // case 'UPDATE_CATEGORY':
-                    //     result = await updateCategory(item.payload.id, item.payload);
-                    //     break;
+                    case 'UPDATE_CATEGORY':
+                        result = await updateCategory(item.payload.id, item.payload);
+                        break;
                     case 'DELETE_CATEGORY':
                         result = await deleteCategory(item.payload.id);
                         break;
 
                     case 'CREATE_BUDGET':
                         result = await createBudget(item.payload);
+                        break;
+                    case 'UPDATE_BUDGET':
+                        result = await updateBudget(item.payload.id, item.payload);
                         break;
                     case 'DELETE_BUDGET':
                         result = await deleteBudget(item.payload.id);

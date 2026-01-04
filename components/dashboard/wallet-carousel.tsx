@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatCurrency, cn } from '@/lib/utils';
 import { WalletReorderDialog } from '@/components/dashboard/wallet-reorder-dialog';
 import { WalletActionsMenu } from '@/components/dashboard/wallet-actions-menu';
+import { Wallet, Landmark, CreditCard } from 'lucide-react';
 
 interface WalletCarouselProps {
     wallets: any[];
@@ -70,9 +71,7 @@ export function WalletCarousel({ wallets, currency, hideBalances }: WalletCarous
                             <div key={wallet.id} className={`min-w-full sm:min-w-0 snap-center glass-panel p-5 rounded-2xl border border-white/60 ${color.border} transition-all cursor-pointer group bg-white/40 hover:bg-white/60`}>
                                 <div className="flex justify-between items-start mb-4">
                                     <div className={`p-3 rounded-full ${color.light} ${color.text} group-hover:${color.bg} group-hover:text-white transition-colors shadow-sm`}>
-                                        <span className="material-symbols-outlined text-[24px]">
-                                            {wallet.type === 'CASH' ? 'wallet' : wallet.type === 'BANK' ? 'account_balance' : 'account_balance_wallet'}
-                                        </span>
+                                        {wallet.type === 'CASH' ? <Wallet className="size-6" /> : wallet.type === 'BANK' ? <Landmark className="size-6" /> : <CreditCard className="size-6" />}
                                     </div>
                                     <div onClick={(e) => e.stopPropagation()}>
                                         <WalletActionsMenu wallet={wallet} />
