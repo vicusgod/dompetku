@@ -14,18 +14,23 @@ import { getTransactions } from '@/actions/transactions/get-transactions';
 
 // --- Transactions Hook ---
 export function useTransactions(filters?: { from?: string; to?: string; walletId?: string; search?: string }) {
-    return useQuery({
-        queryKey: ['transactions', filters],
-        queryFn: async () => {
-            // Always fetch from server - server handles auth
-            // Returns demo data if not logged in
-            const serverData = await getTransactions({
-                ...filters,
-                limit: 500
-            });
+    const { isGuest } = useAuth();
 
-            // Map server data to local format
-            const mapped = serverData.map((t: any) => ({
+    return useQuery({
+        queryKey: ['transactions', filters, isGuest],
+        queryFn: async () => {
+            // For guests, use LocalDataStore
+            if (isGuest) {
+                let transactions = LocalDataStore.getTransactions();
+                if (filters?.from) transactions = transactions.filter(t => new Date(t.date) >= new Date(filters.from!));
+                if (filters?.to) transactions = transactions.filter(t => new Date(t.date) <= new Date(filters.to!));
+                if (filters?.walletId) transactions = transactions.filter(t => t.walletId === filters.walletId);
+                return transactions;
+            }
+
+            // For authenticated users, fetch from server
+            const serverData = await getTransactions({ ...filters, limit: 500 });
+            return serverData.map((t: any) => ({
                 id: t.id,
                 amount: Number(t.amount),
                 type: t.type as 'INCOME' | 'EXPENSE',
@@ -37,8 +42,6 @@ export function useTransactions(filters?: { from?: string; to?: string; walletId
                 walletId: t.walletId || '',
                 createdAt: t.date,
             })) as unknown as Transaction[];
-
-            return mapped;
         },
         staleTime: 30000,
     });
@@ -140,17 +143,23 @@ export function useUpdateTransaction() {
 
 // --- Wallets Hook ---
 export function useWallets() {
+    const { isGuest } = useAuth();
+
     return useQuery({
-        queryKey: ['wallets'],
+        queryKey: ['wallets', isGuest],
         queryFn: async () => {
-            // Always fetch from server - server handles auth
+            // For guests, use LocalDataStore
+            if (isGuest) {
+                return LocalDataStore.getWallets();
+            }
+
+            // For authenticated users, fetch from server
             const serverData = await getWallets();
-            const mapped = serverData.map((w: any) => ({
+            return serverData.map((w: any) => ({
                 ...w,
                 balance: Number(w.balance),
                 order: w.order ?? 0,
             })) as Wallet[];
-            return mapped;
         },
         staleTime: 30000,
     });
@@ -219,10 +228,17 @@ export function useUpdateWallet() {
 
 // --- Categories Hook ---
 export function useCategories() {
+    const { isGuest } = useAuth();
+
     return useQuery({
-        queryKey: ['categories'],
+        queryKey: ['categories', isGuest],
         queryFn: async () => {
-            // Always fetch from server - server handles auth
+            // For guests, use LocalDataStore
+            if (isGuest) {
+                return LocalDataStore.getCategories();
+            }
+
+            // For authenticated users, fetch from server
             const serverData = await getCategories();
             return serverData as Category[];
         },

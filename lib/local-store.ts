@@ -85,7 +85,7 @@ class LocalStore {
             const initialWallets: LocalWallet[] = [
                 {
                     id: 'wallet-1',
-                    name: 'Cash',
+                    name: 'Guest',
                     type: 'CASH',
                     balance: 0,
                     order: 0,
